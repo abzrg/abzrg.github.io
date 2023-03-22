@@ -2,26 +2,26 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Tags on Ali&#39;s blog</title>
-    <link>http://reverseila.github.io/tags/</link>
+    <link>http://abzrg.github.io/tags/</link>
     <description>Recent content in Tags on Ali&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 23 Sep 2022 14:04:20 +0330</lastBuildDate><atom:link href="http://reverseila.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 23 Sep 2022 14:04:20 +0330</lastBuildDate><atom:link href="http://abzrg.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>OpenFOAM</title>
-      <link>http://reverseila.github.io/tags/openfoam/</link>
+      <link>http://abzrg.github.io/tags/openfoam/</link>
       <pubDate>Fri, 23 Sep 2022 14:04:20 +0330</pubDate>
       
-      <guid>http://reverseila.github.io/tags/openfoam/</guid>
+      <guid>http://abzrg.github.io/tags/openfoam/</guid>
       <description></description>
     </item>
     
     <item>
       <title>swak4Foam</title>
-      <link>http://reverseila.github.io/tags/swak4foam/</link>
+      <link>http://abzrg.github.io/tags/swak4foam/</link>
       <pubDate>Fri, 23 Sep 2022 14:04:20 +0330</pubDate>
       
-      <guid>http://reverseila.github.io/tags/swak4foam/</guid>
+      <guid>http://abzrg.github.io/tags/swak4foam/</guid>
       <description></description>
     </item>
     

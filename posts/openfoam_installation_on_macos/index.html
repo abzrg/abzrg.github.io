@@ -10,13 +10,13 @@
 <meta name="description" content="Case-sensitivity Nowadays, Apple Macbooks don’t ship with a case-sensitive file system. However, the OpenFOAM source code heavily uses case-sensitive names for conveying different meanings. We first need to create acase-sensitive partition/volume. For that, we use the Disk Utility program, per below.
 Provide a name (This will be your FOAM_INST_DIR directory which contains all OpenFOAM installations). Here I specified it as OpenFOAM. For the format, we need to choose a case-sensitive format (In this case, APFS (case-sensitive)).">
 <meta name="author" content="">
-<link rel="canonical" href="http://reverseila.github.io/posts/openfoam_installation_on_macos/">
+<link rel="canonical" href="http://abzrg.github.io/posts/openfoam_installation_on_macos/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.b183800e2cfbb62c3bce2b2ba56cdb2dd33af76c75cf4550173d5dfebd7c68a6.css" integrity="sha256-sYOADiz7tiw7zisrpWzbLdM692x1z0VQFz1d/r18aKY=" rel="preload stylesheet" as="style">
-<link rel="icon" href="http://reverseila.github.io/favicon/favicon.ico" type="image/x-icon">
-<link rel="icon" type="image/png" sizes="16x16" href="http://reverseila.github.io/favicon/favicon-16x16.png" type="image/x-icon">
-<link rel="icon" type="image/png" sizes="32x32" href="http://reverseila.github.io/favicon/favicon-32x32.png" type="image/x-icon">
-<link rel="apple-touch-icon" href="http://reverseila.github.io/favicon/apple-touch-icon.png" type="image/x-icon">
-<link rel="mask-icon" href="http://reverseila.github.io/favicon/favicon.ico" type="image/x-icon">
+<link rel="icon" href="http://abzrg.github.io/favicon/favicon.ico" type="image/x-icon">
+<link rel="icon" type="image/png" sizes="16x16" href="http://abzrg.github.io/favicon/favicon-16x16.png" type="image/x-icon">
+<link rel="icon" type="image/png" sizes="32x32" href="http://abzrg.github.io/favicon/favicon-32x32.png" type="image/x-icon">
+<link rel="apple-touch-icon" href="http://abzrg.github.io/favicon/apple-touch-icon.png" type="image/x-icon">
+<link rel="mask-icon" href="http://abzrg.github.io/favicon/favicon.ico" type="image/x-icon">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
 <noscript>
@@ -27,11 +27,12 @@ Provide a name (This will be your FOAM_INST_DIR directory which contains all Ope
         }
 
     </style>
-</noscript><meta property="og:title" content="Installing OpenFOAM (ESI v2206) on an M1 Mac" />
+</noscript>
+<meta property="og:title" content="Installing OpenFOAM (ESI v2206) on an M1 Mac" />
 <meta property="og:description" content="Case-sensitivity Nowadays, Apple Macbooks don’t ship with a case-sensitive file system. However, the OpenFOAM source code heavily uses case-sensitive names for conveying different meanings. We first need to create acase-sensitive partition/volume. For that, we use the Disk Utility program, per below.
 Provide a name (This will be your FOAM_INST_DIR directory which contains all OpenFOAM installations). Here I specified it as OpenFOAM. For the format, we need to choose a case-sensitive format (In this case, APFS (case-sensitive))." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://reverseila.github.io/posts/openfoam_installation_on_macos/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://abzrg.github.io/posts/openfoam_installation_on_macos/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-09-23T14:04:20+03:30" />
 <meta property="article:modified_time" content="2022-09-23T14:04:20+03:30" /><meta property="og:site_name" content="Ali&#39;s Blog" />
 
@@ -50,13 +51,13 @@ Provide a name (This will be your FOAM_INST_DIR directory which contains all Ope
       "@type": "ListItem",
       "position":  1 ,
       "name": "Posts",
-      "item": "http://reverseila.github.io/posts/"
+      "item": "http://abzrg.github.io/posts/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
       "name": "Installing OpenFOAM (ESI v2206) on an M1 Mac",
-      "item": "http://reverseila.github.io/posts/openfoam_installation_on_macos/"
+      "item": "http://abzrg.github.io/posts/openfoam_installation_on_macos/"
     }
   ]
 }
@@ -78,14 +79,14 @@ Provide a name (This will be your FOAM_INST_DIR directory which contains all Ope
   "dateModified": "2022-09-23T14:04:20+03:30",
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "http://reverseila.github.io/posts/openfoam_installation_on_macos/"
+    "@id": "http://abzrg.github.io/posts/openfoam_installation_on_macos/"
   },
   "publisher": {
     "@type": "Organization",
     "name": "Ali's blog",
     "logo": {
       "@type": "ImageObject",
-      "url": "http://reverseila.github.io/favicon/favicon.ico"
+      "url": "http://abzrg.github.io/favicon/favicon.ico"
     }
   }
 }
@@ -103,7 +104,7 @@ Provide a name (This will be your FOAM_INST_DIR directory which contains all Ope
 <header class="header">
     <nav class="nav">
         <div class="logo">
-            <a href="http://reverseila.github.io/" accesskey="h" title="Ali&#39;s blog (Alt + H)">Ali&#39;s blog</a>
+            <a href="http://abzrg.github.io/" accesskey="h" title="Ali&#39;s blog (Alt + H)">Ali&#39;s blog</a>
             <div class="logo-switches">
                 <button id="theme-toggle" accesskey="t" title="(Alt + T)">
                     <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
@@ -129,12 +130,12 @@ Provide a name (This will be your FOAM_INST_DIR directory which contains all Ope
         </div>
         <ul id="menu">
             <li>
-                <a href="http://reverseila.github.io/archives/" title="Archives">
+                <a href="http://abzrg.github.io/archives/" title="Archives">
                     <span>Archives</span>
                 </a>
             </li>
             <li>
-                <a href="http://reverseila.github.io/tags/" title="Tags">
+                <a href="http://abzrg.github.io/tags/" title="Tags">
                     <span>Tags</span>
                 </a>
             </li>
@@ -292,15 +293,15 @@ export PATH=&#34;/opt/homebrew/opt/findutils/libexec/gnubin:$PATH&#34;
 
   <footer class="post-footer">
     <ul class="post-tags">
-      <li><a href="http://reverseila.github.io/tags/openfoam/">OpenFOAM</a></li>
-      <li><a href="http://reverseila.github.io/tags/swak4foam/">swak4Foam</a></li>
+      <li><a href="http://abzrg.github.io/tags/openfoam/">OpenFOAM</a></li>
+      <li><a href="http://abzrg.github.io/tags/swak4foam/">swak4Foam</a></li>
     </ul>
   </footer>
 </article>
     </main>
     
 <footer class="footer">
-    <span>&copy; 2022 <a href="http://reverseila.github.io/">Ali&#39;s blog</a></span>
+    <span>&copy; 2023 <a href="http://abzrg.github.io/">Ali&#39;s blog</a></span>
     <span>
         Powered by
         <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
@@ -413,6 +414,9 @@ export PATH=&#34;/opt/homebrew/opt/findutils/libexec/gnubin:$PATH&#34;
             codeblock.parentNode.appendChild(copybutton);
         }
     });
+</script>
+<script type="text/javascript"
+        src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 </body>
 
