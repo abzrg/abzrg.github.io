@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Posts on Ali&#39;s blog</title>
-    <link>http://abzrg.github.io/posts/</link>
-    <description>Recent content in Posts on Ali&#39;s blog</description>
+    <title>English on Ali&#39;s blog</title>
+    <link>http://abzrg.github.io/tags/english/</link>
+    <description>Recent content in English on Ali&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 29 May 2023 13:31:13 +0330</lastBuildDate><atom:link href="http://abzrg.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 29 May 2023 13:31:13 +0330</lastBuildDate><atom:link href="http://abzrg.github.io/tags/english/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>IELTS Writing (Task 2): Qualifying Words</title>
       <link>http://abzrg.github.io/posts/task2_qualifying_words/</link>
@@ -660,150 +660,6 @@ complete her tasks.&rdquo;</li>
 <li><a href="https://www.amazon.in/IELTS-Task-How-Write-Level/dp/1451553404">IELTS Academic &amp; General Task 2 How To Write at a Band 9 Level &ndash; Ryan Higgins</a></li>
 <li><a href="https://chat.openai.com">ChatGPT</a></li>
 </ul>
-]]></content:encoded>
-    </item>
-    
-    <item>
-      <title>Installing OpenFOAM (ESI v2206) on an M1 Mac</title>
-      <link>http://abzrg.github.io/posts/openfoam_installation_on_macos/</link>
-      <pubDate>Fri, 23 Sep 2022 14:04:20 +0330</pubDate>
-      
-      <guid>http://abzrg.github.io/posts/openfoam_installation_on_macos/</guid>
-      <description>Case-sensitivity Nowadays, Apple Macbooks don’t ship with a case-sensitive file system. However, the OpenFOAM source code heavily uses case-sensitive names for conveying different meanings. We first need to create acase-sensitive partition/volume. For that, we use the Disk Utility program, per below.
-Provide a name (This will be your FOAM_INST_DIR directory which contains all OpenFOAM installations). Here I specified it as OpenFOAM. For the format, we need to choose a case-sensitive format (In this case, APFS (case-sensitive)).</description>
-      <content:encoded><![CDATA[<!-- raw HTML omitted -->
-<h2 id="case-sensitivity">Case-sensitivity</h2>
-<p>Nowadays, Apple Macbooks don’t ship with a case-sensitive file system.
-However, the OpenFOAM source code heavily uses case-sensitive names for conveying different meanings.
-We first need to create acase-sensitive partition/volume.
-For that, we use the Disk Utility program, per below.</p>
-<p><img loading="lazy" src="/img/openfoam_installation_disk_utility.png" alt="The selected settings for Disk Utility"  />
-</p>
-<p>Provide a name (This will be your <code>FOAM_INST_DIR</code> directory which contains all OpenFOAM installations).
-Here I specified it as <code>OpenFOAM</code>.
-For the format, we need to choose a <strong>case-sensitive</strong> format (In this case, <code>APFS (case-sensitive)</code>).</p>
-<p>Now, we have a partition on our disk with a case-sensitive file system.
-It is mounted on <code>/Volumes/OpenFOAM</code>, but navigating there is a bit inconvenient.
-To have it in the <code>HOME</code> directory, we create a symbolic link.</p>
-<pre tabindex="0"><code>ln -s /Volumes/OpenFOAM $HOME/OpenFOAM
-</code></pre><!-- raw HTML omitted -->
-<h2 id="installing-prerequisites-using-homebrew">Installing Prerequisites using Homebrew</h2>
-<pre tabindex="0"><code>brew install git cmake open-mpi libomp bear paraview
-</code></pre><blockquote>
-<ul>
-<li><code>git</code>: to clone (download) source code and applying patch (for swak4Foam)</li>
-<li><code>cmake</code>: to make build files to be consumed by make</li>
-<li><code>openmpi</code>, <code>libomp</code>: Runtime parallel libraries (for parallel runs and &hellip;)</li>
-<li><code>bear</code>: Generate compilation database for clang tooling (clangd)</li>
-<li><code>paraview</code>: Data analysis and visualization application</li>
-</ul>
-</blockquote>
-<!-- raw HTML omitted -->
-<h2 id="get-the-source-code">Get the Source Code</h2>
-<p>We can grab the source code by cloning the git repository from GitLab</p>
-<pre tabindex="0"><code>git clone https://develop.openfoam.com/Development/openfoam
-</code></pre><p>This clone is pointing to the development branch.
-However, here I’ll choose the latest &ldquo;stable&rdquo; version, the <code>OpenFOAM-v2206</code>.</p>
-<pre tabindex="0"><code>mv openfoam OpenFOAM-v2206
-cd $_
-git checkout OpenFOAM-v2206
-</code></pre><!-- raw HTML omitted -->
-<h2 id="shell-config-optional">Shell config (Optional)</h2>
-<p>Now that we have the desired version,
-we can tweak a bunch of settings and files before proceeding to build OpenFOAM.
-Note that we should not edit config files under the version control
-because those changes will be discarded upon updates (for example, using <code>git pull</code>).
-OpenFOAM
-<a href="https://develop.openfoam.com/Development/openfoam/-/wikis/configuring">suggests</a>
-putting a user-defined configuration in the <code>$HOME/.OpenFOAM</code> directory.
-We also create the <code>2206</code> in that directory to make it version-specific.</p>
-<pre tabindex="0"><code>mkdir -p $HOME/.OpenFOAM/2206
-</code></pre><p>Next, put your desired config there. Here&rsquo;s mine</p>
-<pre tabindex="0"><code># Setting the size of `label` to 64 bit
-export WM_LABEL_SIZE=64
-
-# If you want to debug your code
-export WM_COMPILE_OPTION=Debug
-
-# Some usefull aliases
-alias foamfv=&#39;cd $FOAM_SRC/finiteVolume&#39;
-alias foamsrc=&#39;cd $FOAM_SRC/OpenFOAM&#39;
-alias foam3rdParty=&#39;cd $WM_THIRD_PARTY_DIR&#39;
-alias paraFOAM=&#39;paraFOAM -builtin&#39;
-</code></pre><p>Also, we need to get rid of one compiler warning,
-<code>-Wunsupported-floating-point-opt</code>. For that we edit the file
-<code>$WM_PROJECT_DIR/wmake/rules/general/Clang/c++</code> and add the
-<code>Wno-unsupported-floating-point-opt</code> to the end of <code>c++WARN</code>
-variable. (Notice the <code>\</code> at the line after the
-<code>-Wno-unknown-warning-option</code>)</p>
-<pre tabindex="0"><code># ~~~
-c++WARN     = \
-    -Wall -Wextra -Wold-style-cast \
-    -Wnon-virtual-dtor -Wno-unused-parameter -Wno-invalid-offsetof \
-    -Wno-undefined-var-template \
-    -Wno-unknown-warning-option \
-    -Wno-unsupported-floating-point-opt
-# ~~~
-</code></pre><blockquote>
-<p>I couldn&rsquo;t find a way to add this flag in a file in the <code>$HOME/.OpenFOAM</code> directory.</p>
-</blockquote>
-<!-- raw HTML omitted -->
-<h2 id="build">Build</h2>
-<p>First, we navigate to the <code>OpenFOAM-v2206</code> and load the OpenFOAM environment</p>
-<pre tabindex="0"><code>cd ~/OpenFOAM/OpenFOAM-v2206/
-source etc/bashrc
-</code></pre><p>Then we run the <code>foamSystemCheck</code> shell script to check the
-machine, software components, and the environment for installing
-OpenFOAM</p>
-<pre tabindex="0"><code>foamSystemCheck
-</code></pre><blockquote>
-<p>Hopefully, it won’t create any errors because I didn’t face any! ;).</p>
-</blockquote>
-<p>Next, we run the installation script, <code>Allwmake</code>, with a few flags</p>
-<pre tabindex="0"><code>./Allwmake -j -s -l -with-bear
-</code></pre><blockquote>
-<ul>
-<li>You can check what is the meaning of these flags with <code>wmake -help</code>command</li>
-<li><code>-with-bear</code> is optional unless you are using an <code>LSP</code></li>
-<li><code>-j</code> will utilize all your CPU cores. To only use a certain number of cores: <code>-j 2</code></li>
-</ul>
-</blockquote>
-<p>If the build has finished without any fatal errors, installation can
-be tested with the following command</p>
-<pre tabindex="0"><code>foamInstallationTest
-</code></pre><!-- raw HTML omitted -->
-<h2 id="swak4foam">swak4Foam</h2>
-<p>To install the swak4Foam package on macOS, first, we need to patch it.</p>
-<pre tabindex="0"><code>curl https://gist.githubusercontent.com/reverseila/39101060b5f05d9b2d2d151a39fda158/raw/eca1be96c534ae0eb4938c5491028d8d7838328b/swak4Foam.patch | git apply
-</code></pre><p>Then, we need to install three more prerequisites. <code>bison</code> on macOS is
-outdated for building swak4Foam. So we install a new version of
-<code>bison</code> with homebrew and add it to <code>PATH</code></p>
-<pre tabindex="0"><code>brew install bison pkgconfig
-export PATH=&#34;$(brew --prefix)/opt/bison/bin:$PATH&#34;
-</code></pre><blockquote>
-<ul>
-<li><code>bison</code>: Parser generator</li>
-<li><code>pkgconfig</code>: Manage compile and link flags for libraries</li>
-</ul>
-</blockquote>
-<p>Further, The <code>xargs</code> utility used inside the scripts of the
-<code>swak4FOAM</code> uses a specific feature of the GNU version of <code>xargs</code> that
-produces an error with macOS version of <code>xargs</code>.
-We need to install the <code>findutils</code> package and add it to <code>PATH</code>.</p>
-<pre tabindex="0"><code>brew install findutils
-
-export PATH=&#34;/opt/homebrew/opt/findutils/libexec/gnubin:$PATH&#34;
-</code></pre><p>Next, we build it</p>
-<pre tabindex="0"><code>./AllwmakeAll 2&gt;&amp;1 | tee log.AllwmakeAll
-</code></pre><p>We can test the installation by running a swak4Foam utility. For example</p>
-<pre tabindex="0"><code>funkySetFields -help
-</code></pre><!-- raw HTML omitted -->
-<h2 id="resources">Resources:</h2>
-<ol>
-<li><a href="https://develop.openfoam.com/Development/openfoam">OpenFOAM ESI group</a></li>
-<li><a href="https://github.com/BrushXue/OpenFOAM-AppleM1">BrushXue/OpenFOAM-AppleM1</a></li>
-<li><a href="https://develop.openfoam.com/Development/openfoam/-/wikis/configuring">OpenFOAM Configuration System</a></li>
-</ol>
 ]]></content:encoded>
     </item>
     

@@ -54,10 +54,10 @@
 </script>
 </head>
 
-<body class="list" id="top">
+<body class="list dark" id="top">
 <script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
     }
 
 </script>
@@ -91,8 +91,19 @@
         </div>
         <ul id="menu">
             <li>
-                <a href="http://abzrg.github.io/archives/" title="Archives">
-                    <span>Archives</span>
+                <a href="https://github.com/abzrg/cv/raw/master/cv.pdf" title="Resume">
+                    <span>Resume</span>&nbsp;
+                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14L21 3"></path>
+                    </svg>
+                </a>
+            </li>
+            <li>
+                <a href="http://abzrg.github.io/archives/" title="Posts">
+                    <span>Posts</span>
                 </a>
             </li>
             <li>
@@ -120,6 +131,20 @@
 
 <article class="post-entry"> 
   <header class="entry-header">
+    <h2>IELTS Writing (Task 2): Qualifying Words
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>In Task 2 of IELTS Writing, Qualifying words are the words in the question which tell the student how the various ideas relate together. They are often the words that present opinion.
+Technology is becoming increasingly prevalent in the world today. In the not too distant future, technology will completely replace the teacher in the classroom. Do you agree or disagree with this statement?
+Here, we see the phrase ‘increasingly prevalent’....</p>
+  </div>
+  <footer class="entry-footer"><span title='2023-05-29 13:31:13 +0330 +0330'>May 29, 2023</span>&nbsp;·&nbsp;11 min&nbsp;·&nbsp;2235 words</footer>
+  <a class="entry-link" aria-label="post link to IELTS Writing (Task 2): Qualifying Words" href="http://abzrg.github.io/posts/task2_qualifying_words/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
     <h2>Installing OpenFOAM (ESI v2206) on an M1 Mac
     </h2>
   </header>
@@ -134,11 +159,11 @@ Provide a name (This will be your FOAM_INST_DIR directory which contains all Ope
     
 <footer class="footer">
     <span>&copy; 2023 <a href="http://abzrg.github.io/">Ali&#39;s blog</a></span>
-    <span>
-        Powered by
-        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
-        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
-    </span>
+    
+    
+    
+    
+    
 </footer>
 <a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
