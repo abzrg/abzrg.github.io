@@ -151,6 +151,258 @@ export PATH=&#34;/opt/homebrew/opt/findutils/libexec/gnubin:$PATH&#34;
 ]]></content:encoded>
     </item>
     
+    <item>
+      <title>Résumé (Curriculum vitae)</title>
+      <link>http://abzrg.github.io/resume/</link>
+      <pubDate>Fri, 23 Sep 2022 14:04:20 +0330</pubDate>
+      
+      <guid>http://abzrg.github.io/resume/</guid>
+      <description>A comprehensive résumé showcasing academic and technical achievements.</description>
+      <content:encoded><![CDATA[<p>You can download the PDF version of this CV <a href="https://github.com/abzrg/cv/releases/download/v1/cv.pdf">here</a>.</p>
+<h2 id="education">Education</h2>
+<h3 id="2022----present">2022 &ndash; present</h3>
+<p>Research Assistant, Babol Noshirvani University Of Technology</p>
+<h3 id="2018-2022">2018-2022</h3>
+<p>M.Sc. in Mechanical Engineering, Babol Noshirvani University OF Technology<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>,</p>
+<ul>
+<li><strong>THESIS TOPIC</strong>: Numerical Investigation of the Effect of Flow Pulsation and Increased Discharged Voltage on Desalination and Energy Usage of Capacitive Deionization</li>
+<li><strong>SUPERVISOR</strong> : Dr. Abas Ramiar</li>
+<li><strong>CGPA</strong> : <a href="https://github.com/abzrg/cv/releases/download/v1/cgpa.org">3.4</a></li>
+<li><strong>keywords</strong>: Capacitive Deionization, Electrical Double Layer, Modified Donnan, OpenFOAM</li>
+</ul>
+<h3 id="2013----2018">2013 &ndash; 2018</h3>
+<p>B.Sc. in Mechanical Engineering, Babol Noshirvani University Of Technology</p>
+<hr>
+<h2 id="research-interest">Research Interest</h2>
+<ul>
+<li>Computational Fluid Dynamics
+<ul>
+<li>Numerical Methods</li>
+<li>Programming</li>
+</ul>
+</li>
+<li>Machine Learning</li>
+<li>Electrokinetic: Dielectrophoresis, Particle Separation</li>
+<li>Multiphase Flow:
+<ul>
+<li>Lagrangian Particle Tracking</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="selected-courses">Selected Courses</h2>
+<ul>
+<li>Advanced Thermodynamics: 19.1/20</li>
+<li>Advanced Engineering Mathematics: 18/20</li>
+<li>Advanced Heat Exchanger: 17.5/20</li>
+<li>Direct Energy Conversion: 17/20</li>
+<li>Advanced Fluid Mechanics: 16/20</li>
+<li>Advanced Heat Transfer Radiation: 16/20</li>
+</ul>
+<hr>
+<h2 id="publication">Publication</h2>
+<ul>
+<li>
+<p>2023</p>
+<ul>
+<li>Numerical Investigation of Separation of Particle in a viscoelastic medium in a microchannel.</li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
+<li>Two Dimensional Simulation of Capacitive Deionization using OpenFOAM (<em>Domestic Conference Paper</em>, <em>in Persian</em>, <em>submitted</em>)</li>
+</ul>
+</li>
+<li>
+<p>2022</p>
+<ul>
+<li>Reza Derakhshan, <strong>Ali Bozorgzadeh</strong>, and Abas Ramiar. &ldquo;Numerical Investigation of Ternary Particle Separation in a Microchannel with a Wall-Mounted Obstacle Using Dielectrophoresis.&rdquo; Journal of Chromatography A (2023) : 464079. (<a href="https://www.sciencedirect.com/science/article/pii/S0021967323003059"><em>link</em></a>)</li>
+</ul>
+</li>
+<li>
+<p>2020</p>
+<ul>
+<li>Masoud Outokesh, Seyed Soheil Mousavi Ajarostaghi, <strong>Ali Bozorgzadeh</strong>, and Kurosh Sedighi. &ldquo;Numerical evaluation of the effect of utilizing twisted tape with curved profile as a turbulator on heat transfer enhancement in a pipe.&rdquo; Journal of Thermal Analysis and Calorimetry 140, no. 3 (2020) : 1537-1553. (<a href="https://link.springer.com/article/10.1007/s10973-020-09336-0"><em>link</em></a>)</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="languages">Languages</h2>
+<ul>
+<li>Persian: Native or bilingual proficiency</li>
+<li>English: Professional working proficiency</li>
+</ul>
+<h3 id="test-scores">Test Scores</h3>
+<ul>
+<li><strong>IELTS</strong>: 7 (<strong>L</strong>: 7.5, <strong>R</strong>: 8, <strong>W</strong>: 6, <strong>S</strong>: 7)</li>
+<li><strong>GRE</strong>: To be taken in the near future</li>
+</ul>
+<hr>
+<h2 id="programming-texttiny-and-markup-language">Programming $\text{\tiny and Markup}$ Language</h2>
+<ul>
+<li><strong>Assembly</strong> $\color{gray}● ● ● ○ ○$
+<ul>
+<li>I acquired the fundamentals of Nasm.</li>
+<li>I can comprehend the core of compiler-generated assembly, as exemplified in Compiler Explorer.</li>
+</ul>
+</li>
+<li><strong>C</strong> &ndash; $\color{gray}● ● ● ● ●$
+<ul>
+<li><a href="https://github.com/abzrg/leet">My solutions to leetcode 75 series </a></li>
+<li><a href="https://github.com/abzrg/leet">My solutions to Euler project series</a></li>
+<li><a href="https://github.com/abzrg/dsa">Implementation of data structures and algorithms in C</a></li>
+</ul>
+</li>
+<li><strong>C++</strong> &ndash; $\color{gray}● ● ● ● ○$
+<ul>
+<li><a href="https://github.com/abzrg/cpp_course">My solutions to problems of an Online C++ course</a></li>
+<li>OpenFOAM solver+case for simulation of Capacitive Deionization
+<ul>
+<li>Developed custom solvers
+<ul>
+<li><a href="https://github.com/abzrg/cdi">case</a></li>
+<li><a href="https://github.com/cdiFoam">solver</a></li>
+</ul>
+</li>
+<li>Implemented a new custom lagrangian model</li>
+<li>Updated legacy code (solvers and libraries) to ensure compatibility with
+new machines and the latest version of OpenFOAM.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Fortran</strong> &ndash; $\color{gray}● ● ● ○ ○$</li>
+<li><strong>Python</strong> &ndash; $\color{gray}● ● ● ● ○$
+<ul>
+<li><a href="https://github.com/abzrg/citle">citle</a>: Provides citation information (BibTeX file and/or DOI) by inputting a title.</li>
+<li><a href="https://github.com/abzrg/cs50p-sol">My solutions to CS50-Python&rsquo;s homeworks</a></li>
+</ul>
+</li>
+<li><strong>POSIX shell</strong> &ndash; $\color{gray}● ● ● ● ○$
+<ul>
+<li><a href="https://gist.github.com/abzrg/b91940c43a54915176b13822eb067161">pronunciation.sh</a>: Downloads and plays both UK and US pronunciations of words.</li>
+<li>There are various scripts in my <a href="https://github.com/dot/">dotfiles</a></li>
+</ul>
+</li>
+<li><strong>Lua</strong> &ndash; $\color{gray}● ● ● ○ ○$
+<ul>
+<li>I use this language to configure my editor (Neovim) in a modular way (refer to <a href="https://github.com/dot">dotfiles</a>)</li>
+</ul>
+</li>
+<li><strong>$\LaTeX$</strong> &ndash; $\color{gray}● ● ● ● ○$
+<ul>
+<li><a href="https://github.com/abrg/cv">The pdf version of this cv</a></li>
+<li>I also typeset my 2022 paper using $\LaTeX$</li>
+</ul>
+</li>
+<li><strong>Markdown</strong> &ndash; $\color{gray}● ● ● ● ●$</li>
+<li><strong>HTML and CSS</strong> &ndash; $\color{gray}● ● ○ ○ ○$</li>
+<li><strong>JavaScript</strong> &ndash; $\color{gray}● ● ● ○ ○$</li>
+</ul>
+<h3 id="libraries-and-frameworks">Libraries and Frameworks</h3>
+<ul>
+<li>
+<p>Python</p>
+<ul>
+<li>NumPy, Matplotlib, Pandas, Pytest</li>
+<li>Basic Familiarity with
+<ul>
+<li>Django</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>C/C++</p>
+<ul>
+<li>OpenFOAM</li>
+<li>Test: GTest, Catch2</li>
+<li>Basic Familiarity with
+<ul>
+<li>OpenMP</li>
+<li>Armadillo
+<ul>
+<li>I used it once to solve a simple Partial Differential Equation using the Finite Difference Method.</li>
+</ul>
+</li>
+<li>Raylib, SDL2, OpenGL, GLFW, GLEW, GLAD
+<ul>
+<li>Currently, I&rsquo;m learning 3D GPU programming in my free time.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="tools-i-use">Tools I Use</h2>
+<ul>
+<li><strong>Version Control</strong>: Git</li>
+<li><strong>Build Systems</strong>: Make, CMake (build system generator)</li>
+<li><strong>Debugging</strong>: <code>gdb</code>, <code>lldb</code>, <code>valgrind</code>, clang sanitizers, <code>clangd</code>, <code>clang-tidy</code>, <code>clang-format</code>, <code>bear</code>, <code>ctags</code></li>
+<li><strong>Coreutils</strong>: <code>find</code>, <code>sed</code>, <code>awk</code>, <code>xargs</code>, &hellip;</li>
+<li><strong>Editors</strong>: (Neo)vim, ed, GNU Emacs</li>
+<li><strong>Misc.</strong>:
+<ul>
+<li><strong>tmux</strong>: All my development work occurs in various tmux sessions. I can smoothly switch between projects using a custom shell script and a customized tmux shortcut.</li>
+<li><strong>ssh</strong>: When I&rsquo;m in a different room or away from my main Linux computer, I SSH into it to continue my work on a different machine. Additionally, I use Anydesk&rsquo;s <em>TCP tunneling</em> feature to SSH into the university laboratory computer, avoiding distractions from other users. Furthermore, I use SSH key pairs for remote interactions with repositories on GitHub and GitLab. These key pairs can also be used for signing documents or commits if needed.</li>
+<li><strong>regular expression / regex</strong>: I use regex daily to search for specific string patterns in code using <code>grep</code> (or <code>git grep --cached</code>). I&rsquo;ve also employed regex in projects like <a href="https://gist.github.com/abzrg/b91940c43a54915176b13822eb067161">pronunciation.sh</a> and <a href="https://github.com/abzrg/citle">citle</a> to extract specific URL patterns from HTML content.</li>
+<li><strong>DOCKER</strong> I utilized Docker to learn x86 assembly (Nasm) on my arm64 Mac. Additionally, I created an <a href="https://gist.github.com/abzrg/33d9173c872fb34efa055326859b0c5b">OpenFOAM-3 image</a> for use on a Ubuntu-20.4 machine (as direct installation on the host was not feasible).</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="open-source-contributions">Open Source Contributions</h2>
+<ul>
+<li>
+<p><a href="https://github.com/jadijadi/Practical-Programming-Practices">A collection of programming exercises to help you practice your new language</a></p>
+<ul>
+<li>I contribute to the repository by providing C solutions for problems.</li>
+</ul>
+</li>
+<li>
+<p><a href="https://github.com/jeaye/stdman">Formatted C++20 stdlib man pages (cppreference)</a></p>
+<ul>
+<li>I contribute by updating man-pages when new HTML versions are available from an unofficial repository (verified by cppreference.com).</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="references">References:</h2>
+<ul>
+<li>Abas Ramiar
+<ul>
+<li>Associate Professor, Babol Noshirvani University of Technology</li>
+<li><a href="mailto:aramiar@nit.ac.ir">aramiar@nit.ac.ir</a></li>
+<li><a href="https://scholar.google.com/citations?hl=en&amp;user=ew-WXvQAAAAJ">Google Scholar</a></li>
+</ul>
+</li>
+<li>Kurosh Sedighi
+<ul>
+<li>Associate Professor, Babol Noshirvani University of Technology</li>
+<li><a href="mailto:ksedighi@nit.ac.ir">ksedighi@nit.ac.ir</a></li>
+<li><a href="https://scholar.google.com/citations?user=RlAAZdwAAAAJ&amp;hl=en">Google Scholar</a></li>
+</ul>
+</li>
+<li>Mohsen Sheikholeslami Kandelusi
+<ul>
+<li>Associate Professor, Babol Noshirvani University of Technology</li>
+<li><a href="mailto:mohsen.sheikholeslami@nit.ac.ir">mohsen.sheikholeslami@nit.ac.ir</a></li>
+<li><a href="https://scholar.google.com/citations?user=5cJ2aF0AAAAJ&amp;hl=en">Google Scholar</a></li>
+</ul>
+</li>
+</ul>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>Ranked $153^{rd}$ in the world of engineering by <a href="https://www.usnews.com/education/best-global-universities/babol-noshirvani-university-of-technology-529310">US News</a> (in the year 2023)&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+]]></content:encoded>
+    </item>
+    
     
   </channel>
 </rss>

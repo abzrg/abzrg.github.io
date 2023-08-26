@@ -28,6 +28,27 @@
 
     </style>
 </noscript>
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false}
+        ]
+    });
+});
+</script>
+
+
+
 <meta property="og:title" content="swak4Foam" />
 <meta property="og:description" content="Ali&#39;s blog" />
 <meta property="og:type" content="website" />
@@ -76,14 +97,8 @@
         </div>
         <ul id="menu">
             <li>
-                <a href="https://github.com/abzrg/cv/raw/master/cv.pdf" title="Resume">
-                    <span>Resume</span>&nbsp;
-                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
-                        stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
-                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
-                        <path d="M15 3h6v6"></path>
-                        <path d="M10 14L21 3"></path>
-                    </svg>
+                <a href="http://abzrg.github.io/resume/" title="Resume">
+                    <span>Resume</span>
                 </a>
             </li>
             <li>
@@ -130,11 +145,11 @@ Provide a name (This will be your FOAM_INST_DIR directory which contains all Ope
     
 <footer class="footer">
     <span>&copy; 2023 <a href="http://abzrg.github.io/">Ali&#39;s blog</a></span>
-    <span>
-        Powered by
-        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
-        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
-    </span>
+    
+    
+    
+    
+    
 </footer>
 <a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
