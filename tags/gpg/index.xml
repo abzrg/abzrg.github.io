@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>gpg on Ali&#39;s blog</title>
+    <link>http://abzrg.github.io/tags/gpg/</link>
+    <description>Recent content in gpg on Ali&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 29 Aug 2023 05:29:59 +0330</lastBuildDate><atom:link href="http://abzrg.github.io/tags/gpg/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>How I Enabled Two-Factor Authentication for GitHub Using Command Line Tools Only</title>
+      <link>http://abzrg.github.io/posts/github2fa/</link>
+      <pubDate>Tue, 29 Aug 2023 05:29:59 +0330</pubDate>
+      
+      <guid>http://abzrg.github.io/posts/github2fa/</guid>
+      <description>Today, as I was visiting one of my repositories on GitHub, I encountered a message that prompted me to enable two-factor authentication (2FA). It pointed me to a blog that right at the beginning says:
+Last year, we announced our commitment to require all developers who contribute code on GitHub.com to enable two-factor authentication (2FA) by the end of 2023. src
+While many users choose graphical user interfaces to enable this security feature, I, for reasons I won&amp;rsquo;t bore you with, opted for a different approach: using command line tools such as gpg, pass, and zbar.</description>
+      <content:encoded><![CDATA[<p>Today, as I was visiting one of my repositories on GitHub, I encountered a message that prompted me to enable two-factor authentication (2FA). It pointed me to a blog that right at the beginning says:</p>
+<blockquote>
+<p>Last year, we announced our commitment to require all developers who contribute code on GitHub.com to enable two-factor authentication (2FA) by the end of 2023. <a href="https://github.blog/2023-03-09-raising-the-bar-for-software-security-github-2fa-begins-march-13/">src</a></p>
+</blockquote>
+<p>While many users choose graphical user interfaces to enable this security feature, I, for reasons I won&rsquo;t bore you with, opted for a different approach: using command line tools such as <code>gpg</code>, <code>pass</code>, and <code>zbar</code>.
+In this guide, we will explore the process of enabling 2FA for GitHub using these command line tools.</p>
+<h2 id="setting-up-a-gpg-key-before-initializing-pass">Setting Up a GPG Key before Initializing <code>pass</code></h2>
+<p>Before diving into the process of enabling 2FA for GitHub using command line tools, it&rsquo;s essential to set up a GPG (GNU Privacy Guard) key.
+GPG keys are crucial for securely encrypting and decrypting sensitive data, including passwords stored in the <code>pass</code> password manager.
+Here&rsquo;s how to set up a GPG key:</p>
+<ol>
+<li>
+<p><strong>Install GPG</strong>: If you don&rsquo;t have GPG installed, use your package manager to install it.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># debian</span>
+</span></span><span style="display:flex;"><span>sudo apt-get install gnupg
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># macos</span>
+</span></span><span style="display:flex;"><span>brew install gnupg
+</span></span></code></pre></div></li>
+<li>
+<p><strong>Generate GPG Key Pair</strong>: Generate a GPG key pair using the <code>gpg</code> command.
+Follow the prompts to set up your key&rsquo;s parameters, including your name and email address.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>gpg --full-gen-key
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># I chose RSA, 4096, 0 (key does not expire),...</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># You may want to insert a passphrase for extra protection</span>
+</span></span></code></pre></div></li>
+</ol>
+<h2 id="enabling-2fa-for-github-using-command-line-tools">Enabling 2FA for GitHub Using Command Line Tools</h2>
+<p>Now that you have your GPG key set up, you&rsquo;re ready to enable 2FA for GitHub.</p>
+<ol>
+<li>
+<p><strong>Install Required Tools</strong>: Use your package manager to install <code>pass</code>, <code>pass-otp</code><sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>, and <code>zbar-tools</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># debian</span>
+</span></span><span style="display:flex;"><span>sudo apt-get install pass pass-otp zbar-tools
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># macos</span>
+</span></span><span style="display:flex;"><span>brew install pass pass-otp zbar
+</span></span></code></pre></div></li>
+</ol>
+<ol>
+<li>
+<p><strong>Initialize <code>pass</code></strong>: Create a password store associated with your GitHub email.
+Note that this is the exact same email address you used to generate the GPG key pair just now.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pass init your.github@email.com
+</span></span></code></pre></div></li>
+<li>
+<p><strong>Enable 2FA on GitHub</strong>: Go to your profile Settings on GitHub, and In the &ldquo;Access&rdquo; section of the sidebar, click  Password and authentication. Under &ldquo;Setup authenticator app&rdquo;, download the SVG image (I named it as <code>qr_code.svg</code>).</p>
+</li>
+<li>
+<p><strong>Scan QR Code and Extract OTP Secret</strong>: Use <code>zbarimg</code> to extract the OTP secret.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>zbarimg -q path/to/qr_code.svg
+</span></span></code></pre></div></li>
+<li>
+<p><strong>Add OTP Secret</strong>: Associate an OTP secret with an entry in your pass password store with the following command.
+You will be prompted to enter the OTP secret.
+Only enter the portion of the OTP secret from &lsquo;otpauth://&rsquo; to the end, and then press Enter</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pass otp add github2fa
+</span></span></code></pre></div></li>
+<li>
+<p><strong>Generate OTP</strong>: Retrieve the OTP secret using <code>pass-otp</code>. When you run this command, it will output a temporary OTP that&rsquo;s valid for a short period of time.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pass otp github2fa
+</span></span></code></pre></div></li>
+<li>
+<p><strong>Complete Setup</strong>: Enter the extracted OTP into the GitHub prompt to finalize the 2FA setup.</p>
+</li>
+</ol>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://docs.github.com/en/authentication/securing-your-account-with-two-factor-authentication-2fa/configuring-two-factor-authentication#configuring-two-factor-authentication-using-a-totp-mobile-app">GitHub Guide</a></li>
+<li><a href="https://www.youtube.com/watch?v=sVkURNfxPd4&amp;pp=ygUPbHVrZSBzbWl0aCBwYXNz">(Luke Smith) PASS: a Password Manager &amp; Two Factor Authentication (OTP) with no Cell Phone</a></li>
+<li><a href="https://medium.com/@oem_83498/using-2fa-otp-with-pass-454a8f210f71">(Ömür Özkir) Using 2FA/OTP with pass</a></li>
+</ul>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>This extension allows you to generate One-Time Passwords (OTP) for accounts stored in your pass password store.
+OTPs are commonly used for two-factor authentication (2FA), where you need a temporary code in addition to your regular password to log in securely&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+]]></content:encoded>
+    </item>
+    
+  </channel>
+</rss>

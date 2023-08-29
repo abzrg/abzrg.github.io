@@ -6,7 +6,27 @@
     <description>Recent content in Tags on Ali&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 23 Sep 2022 14:04:20 +0330</lastBuildDate><atom:link href="http://abzrg.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 29 Aug 2023 05:29:59 +0330</lastBuildDate><atom:link href="http://abzrg.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>cli</title>
+      <link>http://abzrg.github.io/tags/cli/</link>
+      <pubDate>Tue, 29 Aug 2023 05:29:59 +0330</pubDate>
+      
+      <guid>http://abzrg.github.io/tags/cli/</guid>
+      <description></description>
+      <content:encoded><![CDATA[]]></content:encoded>
+    </item>
+    
+    <item>
+      <title>gpg</title>
+      <link>http://abzrg.github.io/tags/gpg/</link>
+      <pubDate>Tue, 29 Aug 2023 05:29:59 +0330</pubDate>
+      
+      <guid>http://abzrg.github.io/tags/gpg/</guid>
+      <description></description>
+      <content:encoded><![CDATA[]]></content:encoded>
+    </item>
+    
     <item>
       <title>OpenFOAM</title>
       <link>http://abzrg.github.io/tags/openfoam/</link>
