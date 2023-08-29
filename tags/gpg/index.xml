@@ -57,9 +57,9 @@ Follow the prompts to set up your key&rsquo;s parameters, including your name an
 </ol>
 <ol>
 <li>
-<p><strong>Initialize <code>pass</code></strong>: Create a password store associated with your GitHub email.
+<p><strong>Initialize <code>pass</code></strong>: Create a password store associated with your email.
 Note that this is the exact same email address you used to generate the GPG key pair just now.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pass init your.github@email.com
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pass init &lt;your email&gt;
 </span></span></code></pre></div></li>
 <li>
 <p><strong>Enable 2FA on GitHub</strong>: Go to your profile Settings on GitHub, and In the &ldquo;Access&rdquo; section of the sidebar, click  Password and authentication. Under &ldquo;Setup authenticator app&rdquo;, download the SVG image (I named it as <code>qr_code.svg</code>).</p>
@@ -71,7 +71,8 @@ Note that this is the exact same email address you used to generate the GPG key 
 <li>
 <p><strong>Add OTP Secret</strong>: Associate an OTP secret with an entry in your pass password store with the following command.
 You will be prompted to enter the OTP secret.
-Only enter the portion of the OTP secret from &lsquo;otpauth://&rsquo; to the end, and then press Enter</p>
+Only enter the portion of the OTP secret from &lsquo;otpauth://&rsquo; to the end, and then press Enter.
+Note that you can pick another name other than <code>github2fa</code>.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pass otp add github2fa
 </span></span></code></pre></div></li>
 <li>
