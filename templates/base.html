@@ -7,7 +7,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="{{ get_url(path="style.css") | safe }}">
-  <script src="https://kit.fontawesome.com/93866eaaa9.js" crossorigin="anonymous"></script>
   {% if page.title %}
     <title>{{ page.title }} | {{ config.title }}</title>
   {% elif section.title %}
@@ -15,7 +14,6 @@
   {% else %}
     <title>{{ config.title }}</title>
   {% endif %}
-  {#{ macros::katex() }#}
   {% include "partials/katex.html" %}
   <nav class="menu">
     <div class="nav-left">
@@ -26,17 +24,8 @@
       </ul>
     </div>
     <div class="nav-right">
-      <ul>
-        <li class="icons">
-          <a
-              title="RSS feed"
-              class="fas fa-rss"
-              style="color: rgba(255, 20, 35, 1) !important"
-              href="{{ get_url(path="rss.xml", trailing_slash=false) }}"
-              ></a>
-        </li>
-      </ul>
       <ul id="links">
+        <li><a href="{{ get_url(path="rss.xml", trailing_slash=false) }}">RSS</a></li>
         <li><a href="mailto:alixbozorgzadeh@gmail.org">Contact</a></li>
         <li><a target="_blank" href="https://github.com/abzrg">GitHub</a></li>
         <li><a target="_blank" href="https://www.youtube.com/@abzrg">Videos</a></li>
