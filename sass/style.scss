@@ -1,0 +1,384 @@
+$primary-color: #333;
+$background-color: #f4f4f4;
+
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  overflow-y: scroll;
+  height: 100%;
+  font-family: "Arial", "system-ui", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: normal;
+  font-style: normal;
+  word-wrap: break-word;
+  margin: 0 auto;
+  padding: 1.5em;
+  scroll-behavior: smooth;
+}
+
+body {
+  height: 100%;
+  min-height: 100%;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 125%;
+    max-width: 42em;
+} }
+
+::selection {
+  color: white;
+  background-color: black;
+}
+
+a {
+  color: black;
+  text-decoration: none;
+}
+
+a:link {
+  color: black;
+  text-decoration: none;
+}
+
+a:hover, a:focus, a:active {
+  text-underline-offset: 5px;
+  text-decoration-style: solid;
+  text-decoration: underline;
+}
+
+p {
+  margin: 1em 0;
+  line-height: 1.5;
+}
+
+// Inline codes
+p code {
+  background-color: #eee;
+  padding: 0.05em 0.2em;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+// Code blocks
+pre[class^="language-"] {
+  background-color: $background-color !important;
+  border: 1px solid #ccc;
+  white-space: pre;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  border-radius: 5px;
+}
+
+// Table
+pre {
+  padding: 1rem;
+  overflow: auto;
+  // font-size: 18px;
+}
+
+// The line numbers already provide some kind of left/right padding
+pre[data-linenos] {
+  padding: 1rem 0;
+}
+
+pre table td {
+  padding: 0;
+}
+
+// The line number cells
+pre table td:nth-of-type(1) {
+  text-align: center;
+  user-select: none;
+}
+
+pre mark {
+  // If you want your highlights to take the full width.
+  display: block;
+  // The default background colour of a mark is bright yellow
+  background-color: rgba(254, 252, 232, 0.9);
+}
+
+pre table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table {
+  margin-left: auto;
+  margin-right: auto;
+  width: 90%;
+  border-spacing: 0;
+  border: 1px solid #ccc;
+}
+
+thead {
+  background-color: #f4f4f4;
+}
+
+th,
+td {
+  line-height: 2;
+  text-align: center;
+  border: 1px solid #ccc;
+  padding: 1px 10px;;
+}
+
+ol, ul {
+  margin: 1em;
+}
+
+ol li ol, ol li ul, ul li ol, ul li ul {
+  margin: 0 2em;
+}
+
+ol li p, ul li p {
+  margin: 0;
+}
+
+dl {
+  font-family: monospace, monospace;
+}
+
+dl dt {
+  font-weight: bold;
+}
+
+dl dd {
+  margin: -1em 0 1em 1em;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+  margin: 0 auto;
+  padding: 0.5em;
+}
+
+blockquote {
+  margin-left: 1px;
+  padding-left: 1em;
+  font-style: italic;
+  border-left: solid 3px rgb(255, 20, 35);
+}
+
+.title {
+  font-size: 2.5em;
+}
+
+.subtitle {
+  font-weight: normal;
+  font-size: 0.75em;
+  color: #666;
+}
+
+.tags {
+  margin-top: -1.5rem;
+  padding-bottom: 1.5em;
+}
+
+.tags li {
+  display: inline;
+  margin-right: 0.5em;
+}
+
+figure {
+  margin: 1em 0;
+}
+
+figure figcaption {
+  font-size: 0.75em;
+  text-align: center;
+  color: grey;
+}
+
+.footnote-definition sup {
+  margin-left: -1.5em;
+  float: left;
+}
+
+.footnote-definition .footnote-body {
+  margin: 1em 0;
+  padding: 0 1em;
+  border: 1px dashed rgba(250, 100, 50, 0.3);
+  background-color: rgba(200, 200, 200, 0.2);
+}
+
+.footnote-definition .footnote-body p:only-child {
+  margin: 0.2em 0;
+}
+
+nav {
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+}
+
+nav ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  overflow: hidden;
+}
+
+nav ul.links {
+  display: flex;
+  flex-direction: row;
+}
+
+nav ul li {
+  /* This allow us to arrange list items in a row, without using float */
+  display: inline-block;
+  list-style-type: none;
+}
+
+/* Create a style for the first level items */
+nav > div > ul > li > a {
+  color: black;
+  display: block;
+  line-height: 2em;
+  padding: 0.5em 0em;
+}
+
+nav > div > ul > li > a:hover {
+  text-decoration-color: rgb(255, 20, 35);
+}
+
+nav > div {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+}
+nav > div.nav-right > ul > li > a {
+  padding: 0.5em 0.5em;
+}
+
+.nav-left {
+  float: left;
+  color: black;
+}
+
+.nav-left ul li {
+  float: left;
+}
+
+.nav-right ul li, .nav-right ul {
+  float: right;
+}
+
+header nav {
+  display: flex;
+  justify-content: space-between;
+}
+header a + a {
+  margin-left: 1rem;
+}
+
+/* */
+
+ul.articles {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul.articles li {
+  padding-bottom: 10px;
+}
+
+footer {
+  display: flex;
+  justify-content: center;
+  font-size: 13px;
+}
+
+// Sticky header
+.wrapper {
+  box-sizing: border-box;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.section {
+  flex-grow: 1;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+td {
+  vertical-align: top;
+}
+
+p.date {
+  font-size: 13px;
+  color: gray;
+  margin-top: 2px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  color: #750014;
+  line-height: 1em;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+h4,
+h5,
+h6 {
+  font-weight: bold;
+}
+
+h1 {
+  font-size: 3em;
+  line-height: 1.2em;
+  margin: 0;
+}
+
+h2 {
+  margin: 2em 0 1em;
+  font-size: 2em;
+}
+
+h3 {
+  font-size: 1.2em;
+  font-weight: 600;
+  margin: 1em 0 1em;
+}
+
+h4 {
+  font-size: 0.9em;
+}
+
+h5 {
+  font-size: 0.9em;
+}
+
+h6 {
+  font-size: 0.9em;
+}
+
+.katex {
+  font-size: 100% !important;
+}

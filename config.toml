@@ -1,0 +1,15 @@
+title = "Ali's Blog"
+base_url = "https://abzrg.github.io"
+compile_sass = true
+build_search_index = false
+minify_html = false
+generate_feed = true
+feed_filename = "rss.xml"
+default_language = "en"
+
+[markdown]
+highlight_code = true
+highlight_theme = "gruvbox-light"
+
+[extra]
+author = "Ali"
