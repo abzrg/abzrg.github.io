@@ -65,6 +65,10 @@ p {
 }
 
 // Inline codes
+code {
+  background-color: $background-color !important;
+}
+
 p code {
   background-color: #eee;
   padding: 0.05em 0.2em;
@@ -72,18 +76,31 @@ p code {
   border-radius: 3px;
 }
 
-// Code blocks
-pre[class^="language-"] {
-  background-color: $background-color !important;
+li > code {
+  padding: 0.05em 0.2em;
   border: 1px solid #ccc;
-  white-space: pre;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  border-radius: 5px;
+  border-radius: 3px;
 }
+
+// // Code blocks
+// pre[class^="language-"] {
+//   background-color: $background-color !important;
+//   border: 1px solid #ccc;
+//   white-space: pre;
+//   white-space: pre-wrap;
+//   word-wrap: break-word;
+//   border-radius: 5px;
+// }
 
 // Table
 pre {
+  color: rgb(40, 40, 40) !important;
+  background-color: $background-color !important;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  white-space: pre;
+  white-space: pre-wrap;
+  word-wrap: break-word;
   padding: 1rem;
   overflow: auto;
   // font-size: 18px;
