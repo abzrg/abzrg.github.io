@@ -36,7 +36,8 @@ body {
   html {
     font-size: 125%;
     max-width: 42em;
-} }
+  }
+}
 
 ::selection {
   color: white;
@@ -44,12 +45,11 @@ body {
 }
 
 a {
-  color: black;
+  color: #750014;
   text-decoration: none;
 }
 
 a:link {
-  color: black;
   text-decoration: none;
 }
 
@@ -297,6 +297,15 @@ ul.articles {
 ul.articles li {
   padding-bottom: 10px;
 }
+
+ul.articles li a {
+  color: black;
+}
+
+ul.articles li a:hover {
+  color: black !important;
+}
+
 
 footer {
   display: flex;
