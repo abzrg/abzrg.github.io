@@ -14,5 +14,3 @@ page_template = "blog-page.html"
 +++
 
 <!-- _index.md inside a directory tells zola that it is a section -->
-
-Hello
