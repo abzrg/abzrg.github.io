@@ -57,6 +57,7 @@ a:hover, a:focus, a:active {
   text-underline-offset: 5px;
   text-decoration-style: solid;
   text-decoration: underline;
+  text-decoration-color: rgb(255, 20, 35);
 }
 
 p {
@@ -188,7 +189,7 @@ blockquote {
   margin-left: 1px;
   padding-left: 1em;
   font-style: italic;
-  border-left: solid 3px rgb(255, 20, 35);
+  border-left: solid 5px rgb(255, 20, 35);
 }
 
 .title {
@@ -271,6 +272,7 @@ nav > div > ul > li > a {
 
 nav > div > ul > li > a:hover {
   text-decoration-color: rgb(255, 20, 35);
+  text-decoration-thickness: 3px;
 }
 
 nav > div {
