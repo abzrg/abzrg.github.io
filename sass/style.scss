@@ -65,40 +65,23 @@ p {
 
 // Inline codes
 code {
-  background-color: $background-color !important;
   font-family: "Jetbrains Mono", "Menlo", "Consolas", monospace;
   font-size: 97%;
 }
 
 p code {
-  background-color: #eee;
+  background-color: #f4f4f4;
   padding: 0.05em 0.2em;
-  border: 1px solid #ccc;
   border-radius: 3px;
 }
 
 li > code {
-  padding: 0.05em 0.2em;
-  border: 1px solid #ccc;
   border-radius: 3px;
 }
 
-// // Code blocks
-// pre[class^="language-"] {
-//   background-color: $background-color !important;
-//   border: 1px solid #ccc;
-//   white-space: pre;
-//   white-space: pre-wrap;
-//   word-wrap: break-word;
-//   border-radius: 5px;
-// }
-
-// Table
 pre {
-  color: rgb(40, 40, 40) !important;
-  background-color: $background-color !important;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  border: 1px solid #222;
+  border-radius: 3px;
   white-space: pre;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -188,7 +171,15 @@ blockquote {
   margin-left: 1px;
   padding-left: 1em;
   font-style: italic;
-  border-left: solid 5px rgb(255, 20, 35);
+  color: #555;
+  margin: 1.5em 0 1.5em;
+  border-left: solid 2px gray;
+  font-feature-settings: 'zero' 1;
+}
+
+// Don't draw border for code blocks inside block quote
+blockquote > pre {
+  border: none;
 }
 
 .title {
