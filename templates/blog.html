@@ -6,7 +6,7 @@
 </h1>
 <ul>
   {% for page in section.pages %}
-  <li><a href="{{ page.permalink | safe }}">{{ page.title }}</a> &mdash; {{ page.date }}</li>
+  <li><a href="{{ page.permalink | safe }}">{{ page.title }}</a> &mdash; <span class="date">{{ page.date | date(format="%B %m, %Y") }}</span> </li>
   {% endfor %}
 </ul>
 {% endblock content %}
