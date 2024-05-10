@@ -9,7 +9,7 @@ default_language = "en"
 
 [markdown]
 highlight_code = true
-highlight_theme = "gruvbox-light"
+highlight_theme = "inspired-github"
 
 [extra]
 author = "Ali"
