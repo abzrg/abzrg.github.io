@@ -21,24 +21,6 @@
     <title>{{ config.title }}</title>
   {% endif %}
   {% include "partials/katex.html" %}
-  <nav class="menu">
-    <div class="nav-left">
-      <ul>
-        <li>
-          <a href="/"><span class="sitename" ><strong>{{ config.title }}</strong></span></a>
-        </li>
-      </ul>
-    </div>
-    <div class="nav-right">
-      <ul id="links">
-        <li><a href="{{ get_url(path="rss.xml", trailing_slash=false) }}">RSS</a></li>
-        <li><a href="mailto:alixbozorgzadeh@gmail.com">@</a></li>
-        <li><a target="_blank" href="https://github.com/abzrg">GitHub</a></li>
-        <li><a target="_blank" href="https://www.youtube.com/@abzrg">Videos</a></li>
-        <li><a target="_blank" href="{{ get_url(path="docs/cv.pdf") }}">CV</a></li>
-      </ul>
-    </div>
-  </nav>
 </head>
 <body>
   <div class="wrapper">
@@ -48,7 +30,7 @@
     </div>
   </section>
   <footer>
-    <p>Copyright &copy; 2024 Ali Bozorgzadeh</p>
+    <p id="copyright">Copyright &copy; 2024<a href="/" id="home">Ali Bozorgzadeh</a></p>
   </footer>
   </div>
 </body>
