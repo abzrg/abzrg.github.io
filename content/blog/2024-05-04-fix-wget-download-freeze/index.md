@@ -11,12 +11,15 @@ problem happens, it does not (by default) retry, and the download gets stuck,
 
 and I have to `^C` and retry myself manually.
 
-To fix this, `--read-timeout=seconds` comes to the rescue. According to the manual:
+To fix this, `--read-timeout=seconds` comes to the rescue. According to the `wget`'s man page:
 
-> Set the read (and write) timeout to seconds seconds.  The "time" of this
-> timeout refers to idle time: if, at any point in the download, no data is
-> received for more than the specified number of seconds, reading fails and the
-> download is restarted ... The default read timeout is 900 seconds.
+>     --read-timeout=seconds
+>         Set the read (and write) timeout to seconds seconds.  The
+>         "time" of this timeout refers to idle time: if, at any
+>         point in the download, no data is received for more than the
+>         specified number of seconds, reading fails and the
+>         download is restarted.  This option does not directly affect
+>         the duration of the entire download.
 
 We can adjust the timeout to a shorter interval, like every `20` seconds. So after 20 seconds of not receiving data, download is failed, and `wget` will automatically restart the download.
 
