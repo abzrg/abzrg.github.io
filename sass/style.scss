@@ -367,14 +367,15 @@ h6 {
 .socials {
   display: flex;
   min-width: 40%;
+  flex-wrap: wrap;
 }
 
 .socials-items-center {
   align-items: center
 }
 
-.socials-justify-between {
-  justify-content: space-between
+.socials-justify-center {
+  justify-content: center;
 }
 
 .socials > a {
