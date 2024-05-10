@@ -1,6 +1,13 @@
 $primary-color: #333;
 $background-color: #f4f4f4;
 
+:root {
+  font-family: Inter, "Helvetica", "Helvetica Neue", "Arial", "Verdana", sans-serif;
+  font-feature-settings: 'liga' 1, 'calt' 1, 'ss07' 1; /* fix for Chrome */
+}
+@supports (font-variation-settings: normal) {
+  :root { font-family: InterVariable, sans-serif; }
+}
 
 *,
 *::before,
@@ -17,8 +24,6 @@ $background-color: #f4f4f4;
 html {
   overflow-y: scroll;
   height: 100%;
-  font-family: "Arial", "system-ui", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-  font-optical-sizing: auto;
   font-weight: normal;
   font-style: normal;
   word-wrap: break-word;
@@ -34,8 +39,8 @@ body {
 
 @media (min-width: 768px) {
   html {
-    font-size: 125%;
     max-width: 42em;
+    font-size: 110%;
   }
 }
 
@@ -68,6 +73,8 @@ p {
 // Inline codes
 code {
   background-color: $background-color !important;
+  font-family: "Jetbrains Mono", "Menlo", "Consolas", monospace;
+  font-size: 97%;
 }
 
 p code {
@@ -104,7 +111,6 @@ pre {
   word-wrap: break-word;
   padding: 1rem;
   overflow: auto;
-  // font-size: 18px;
 }
 
 // The line numbers already provide some kind of left/right padding
@@ -167,7 +173,7 @@ ol li p, ul li p {
 }
 
 dl {
-  font-family: monospace, monospace;
+  font-family: "Jetbrains Mono", monospace;
 }
 
 dl dt {
@@ -357,6 +363,7 @@ p.date {
   font-size: 13px;
   color: gray;
   margin-top: 2px;
+  font-style: italic;
 }
 
 h1,
@@ -365,8 +372,8 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: 700;
   color: #750014;
+  font-weight: 800;
   line-height: 1em;
   font-optical-sizing: auto;
   font-style: normal;
@@ -386,7 +393,7 @@ h1 {
 
 h2 {
   margin: 2em 0 1em;
-  font-size: 2em;
+  font-size: 1.5em;
 }
 
 h3 {
