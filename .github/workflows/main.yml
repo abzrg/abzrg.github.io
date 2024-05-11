@@ -2,6 +2,8 @@ on: push
 name: Build and deploy GH Pages
 jobs:
   build:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
