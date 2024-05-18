@@ -85,6 +85,10 @@ li > strong > code {
   border-radius: 3px;
 }
 
+pre[class|='language'] {
+  margin-bottom: 5px;
+}
+
 pre {
   border: 1px solid #222;
   border-radius: 3px;
