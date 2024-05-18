@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="https://abzrg.github.io/rss.xml">
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://rsms.me/">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="https://abzrg.github.io/style.css">
+  <link rel="shortcut icon" type="image/png" href="https://abzrg.github.io/favicon.png"/>
+  
+    <title>How I Look for CFD Jobs from the Command Line | Ali&#x27;s Blog</title>
+  
+  
+
+</head>
+<body>
+  <div class="wrapper">
+  <section class="section">
+    <div class="container">
+      
+<div class="about">
+  <a id="about_back" href="/">ABOUT</a>
+</div>
+<h1 class="title">
+  How I Look for CFD Jobs from the Command Line
+</h1>
+
+<p class="date">May 18, 2024</p>
+
+<h2 id="introduction">Introduction</h2>
+<p>On a daily or weekly basis, I look for Ph.D. studentships on various websites, chief among which being the good old <a href="https://www.cfd-online.com">cfd-online</a>, which mostly posts CFD-related jobs at <a href="https://www.cfd-online.com/Jobs/listjobs.php?category=PhD%20Studentship">this URL</a>.
+The issue with this website is the absence of an email notification feature or an RSS feed, which would otherwise enable me to check for new job postings directly from the comfort of the command line.
+This post is my attempt to automate the process of checking for new jobs.</p>
+<p>I want to write a script to: 1. List all the recent (let's say 10) jobs, and 2. Check whether any new jobs have been posted.</p>
+<h3 id="dependencies">Dependencies</h3>
+<p>For the following commands and scripts to work, we need two programs that may not be pre-installed by default on all Unix operating systems, namely <code>curl</code> and <code>perl</code>.</p>
+<pre data-lang="sh" style="background-color:#ffffff;color:#323232;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="font-style:italic;color:#969896;"># Debian-based Linux Distros
+</span><span>sudo apt install curl perl
+</span><span>
+</span><span style="font-style:italic;color:#969896;"># MacOS
+</span><span>brew install curl perl
+</span></code></pre>
+<h3 id="final-one-liner">Final One-Liner</h3>
+<p>For those who just want to use the command without delving into the forthcoming details, here’s the one-liner:</p>
+<pre data-lang="sh" style="background-color:#ffffff;color:#323232;" class="language-sh "><code class="language-sh" data-lang="sh"><span>curl --silent --location </span><span style="color:#183691;">&#39;https://www.cfd-online.com/Jobs/listjobs.php?category=PhD%20Studentship&#39; </span><span style="font-weight:bold;color:#a71d5d;">| </span><span>perl -0777 -nle </span><span style="color:#183691;">&#39;my $i = 1; print &quot;$i. $1 ($2; $3)\n&quot; and $i++ while /&lt;a href=&quot;showjob\.php\?record_id=[0-9]{5}&quot;&gt;(.*?)&lt;\/a&gt;.*?\s*&lt;I&gt;(.*?)&lt;\/I&gt;&lt;br&gt;\s*(.*?)&lt;br&gt;/gs&#39; </span><span style="font-weight:bold;color:#a71d5d;">| </span><span>head -10
+</span></code></pre>
+<h2 id="1-getting-the-list-of-jobs">1. Getting the List of Jobs</h2>
+<p>I am looking for the following information:</p>
+<ul>
+<li>The title of the position</li>
+<li>The name of the institute or university</li>
+<li>The location of the job</li>
+</ul>
+<p>To extract these data, we first retrieve the data:</p>
+<pre data-lang="sh" style="background-color:#ffffff;color:#323232;" class="language-sh "><code class="language-sh" data-lang="sh"><span>curl --silent --location </span><span style="color:#183691;">&#39;https://www.cfd-online.com/Jobs/listjobs.php?category=PhD%20Studentship&#39;</span><span> --output jobs.html  </span><span style="font-style:italic;color:#969896;"># or curl -sL
+</span></code></pre>
+<ul>
+<li><code>-s/--silent</code>: suppresses the progress information.</li>
+<li><code>-L/--location</code>: tells curl to follow redirects (If the requested URL has moved to a new location, <code>curl</code> will follow the HTTP Location headers to fetch the new location).</li>
+</ul>
+<p>We can examine the structure of the page. The following section appears somewhere in the middle of the page:</p>
+<pre data-lang="html" style="background-color:#ffffff;color:#323232;" class="language-html "><code class="language-html" data-lang="html"><span>...
+</span><span>
+</span><span>&lt;</span><span style="color:#63a35c;">h2</span><span>&gt;CFD Jobs Database - List of Jobs&lt;/</span><span style="color:#63a35c;">h2</span><span>&gt;&lt;</span><span style="color:#63a35c;">p</span><span>&gt;
+</span><span>&lt;</span><span style="color:#63a35c;">table </span><span style="color:#795da3;">border</span><span>=</span><span style="color:#183691;">2 </span><span style="color:#795da3;">cellpadding</span><span>=</span><span style="color:#183691;">5 </span><span style="color:#795da3;">width</span><span>=</span><span style="color:#183691;">100%</span><span>&gt;
+</span><span>&lt;</span><span style="color:#63a35c;">H3</span><span>&gt;Category: PhD Studentship&lt;/</span><span style="color:#63a35c;">H3</span><span>&gt;    &lt;</span><span style="color:#63a35c;">tr</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#63a35c;">td</span><span>&gt;
+</span><span>         &lt;</span><span style="color:#63a35c;">b</span><span>&gt;&lt;</span><span style="color:#63a35c;">a </span><span style="color:#795da3;">href</span><span>=</span><span style="color:#183691;">&quot;showjob.php?record_id=19178&quot;</span><span>&gt;PhD in Thermal Management for Future Aerospace Propulsion &lt;/</span><span style="color:#63a35c;">a</span><span>&gt;&lt;/</span><span style="color:#63a35c;">b</span><span>&gt;&lt;</span><span style="color:#63a35c;">br</span><span>&gt;
+</span><span>         &lt;</span><span style="color:#63a35c;">I</span><span>&gt;Heriot Watt University&lt;/</span><span style="color:#63a35c;">I</span><span>&gt;&lt;</span><span style="color:#63a35c;">br</span><span>&gt;
+</span><span>                  United Kingdom, Edinburgh&lt;</span><span style="color:#63a35c;">br</span><span>&gt;
+</span><span>         &lt;</span><span style="color:#63a35c;">font </span><span style="color:#795da3;">size</span><span>=</span><span style="color:#183691;">-2 </span><span style="color:#795da3;">face</span><span>=</span><span style="color:#183691;">helvetica</span><span>&gt;Record Last Modified 12:43:29 May 17 2024, Closure Date Jul 22 2024&lt;/</span><span style="color:#63a35c;">font</span><span>&gt;
+</span><span>      &lt;/</span><span style="color:#63a35c;">td</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#63a35c;">td </span><span style="color:#795da3;">align</span><span>=</span><span style="color:#183691;">CENTER</span><span>&gt;
+</span><span>         &lt;</span><span style="color:#63a35c;">form </span><span style="color:#795da3;">action</span><span>=</span><span style="color:#183691;">&quot;showjob.php&quot; </span><span style="color:#795da3;">method</span><span>=</span><span style="color:#183691;">GET</span><span>&gt;&lt;</span><span style="color:#63a35c;">input </span><span style="color:#795da3;">type</span><span>=</span><span style="color:#183691;">&quot;hidden&quot; </span><span style="color:#795da3;">name</span><span>=</span><span style="color:#183691;">&quot;record_id&quot; </span><span style="color:#795da3;">value</span><span>=</span><span style="color:#183691;">&quot;19178&quot;</span><span>&gt;&lt;</span><span style="color:#63a35c;">input </span><span style="color:#795da3;">type</span><span>=</span><span style="color:#183691;">&quot;submit&quot; </span><span style="color:#795da3;">value</span><span>=</span><span style="color:#183691;">&quot; View Full Record &quot;</span><span>&gt;
+</span><span>         &lt;/</span><span style="color:#63a35c;">form</span><span>&gt;
+</span><span>         &lt;</span><span style="color:#63a35c;">font </span><span style="color:#795da3;">size</span><span>=</span><span style="color:#183691;">-2 </span><span style="color:#795da3;">face</span><span>=</span><span style="color:#183691;">helvetica</span><span>&gt;Read 166 times&lt;/</span><span style="color:#63a35c;">font</span><span>&gt;
+</span><span>    &lt;/</span><span style="color:#63a35c;">td</span><span>&gt;
+</span><span>    &lt;/</span><span style="color:#63a35c;">tr</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#63a35c;">tr</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#63a35c;">td</span><span>&gt;
+</span><span>         &lt;</span><span style="color:#63a35c;">b</span><span>&gt;&lt;</span><span style="color:#63a35c;">a </span><span style="color:#795da3;">href</span><span>=</span><span style="color:#183691;">&quot;showjob.php?record_id=19173&quot;</span><span>&gt;Modeling and numerical simulation of parietal heat transfer&lt;/</span><span style="color:#63a35c;">a</span><span>&gt;&lt;/</span><span style="color:#63a35c;">b</span><span>&gt;&lt;</span><span style="color:#63a35c;">br</span><span>&gt;
+</span><span>         &lt;</span><span style="color:#63a35c;">I</span><span>&gt;PROMES-CNRS&lt;/</span><span style="color:#63a35c;">I</span><span>&gt;&lt;</span><span style="color:#63a35c;">br</span><span>&gt;
+</span><span>                  France, Perpignan&lt;</span><span style="color:#63a35c;">br</span><span>&gt;
+</span><span>         &lt;</span><span style="color:#63a35c;">font </span><span style="color:#795da3;">size</span><span>=</span><span style="color:#183691;">-2 </span><span style="color:#795da3;">face</span><span>=</span><span style="color:#183691;">helvetica</span><span>&gt;Record Last Modified 22:42:21 May 16 2024, Closure Date Not Specified&lt;/</span><span style="color:#63a35c;">font</span><span>&gt;
+</span><span>      &lt;/</span><span style="color:#63a35c;">td</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#63a35c;">td </span><span style="color:#795da3;">align</span><span>=</span><span style="color:#183691;">CENTER</span><span>&gt;
+</span><span>         &lt;</span><span style="color:#63a35c;">form </span><span style="color:#795da3;">action</span><span>=</span><span style="color:#183691;">&quot;showjob.php&quot; </span><span style="color:#795da3;">method</span><span>=</span><span style="color:#183691;">GET</span><span>&gt;&lt;</span><span style="color:#63a35c;">input </span><span style="color:#795da3;">type</span><span>=</span><span style="color:#183691;">&quot;hidden&quot; </span><span style="color:#795da3;">name</span><span>=</span><span style="color:#183691;">&quot;record_id&quot; </span><span style="color:#795da3;">value</span><span>=</span><span style="color:#183691;">&quot;19173&quot;</span><span>&gt;&lt;</span><span style="color:#63a35c;">input </span><span style="color:#795da3;">type</span><span>=</span><span style="color:#183691;">&quot;submit&quot; </span><span style="color:#795da3;">value</span><span>=</span><span style="color:#183691;">&quot; View Full Record &quot;</span><span>&gt;
+</span><span>         &lt;/</span><span style="color:#63a35c;">form</span><span>&gt;
+</span><span>         &lt;</span><span style="color:#63a35c;">font </span><span style="color:#795da3;">size</span><span>=</span><span style="color:#183691;">-2 </span><span style="color:#795da3;">face</span><span>=</span><span style="color:#183691;">helvetica</span><span>&gt;Read 184 times&lt;/</span><span style="color:#63a35c;">font</span><span>&gt;
+</span><span>    &lt;/</span><span style="color:#63a35c;">td</span><span>&gt;
+</span><span>    &lt;/</span><span style="color:#63a35c;">tr</span><span>&gt;
+</span><span>
+</span><span>...
+</span></code></pre>
+<p>As you can see, jobs are listed in a <code>&lt;table&gt;</code>, with each title surrounded by a <code>b</code> tag, the name of the institute inside an <code>I</code> tag, and the location shortly follows the name of the institution before reaching a <code>&lt;br&gt;</code>.</p>
+<p>Before we go over how to extract the necessary information, I would like to point you to an extremely useful website, <a href="https://regex101.com">regex101.com</a>, which allows you to experiment with (various dialects of) regex. Here's my regex:</p>
+<!-- From Wolfgang's Blog -->
+<div class="post__image">
+    <figure>
+    <a href="https://abzrg.github.io/blog/find-cfd-job-cli/regex101.png" class="image-link" target="_blank">
+        <img src="https://abzrg.github.io/blog/find-cfd-job-cli/regex101.png" alt="regex101 experimentation">
+    </a>
+    <!-- <figcaption>"Regex101 Experimentation"</figcaption> -->
+    </figure>
+</div>
+<p>Moving on, the following regex matches the information I need:</p>
+<pre style="background-color:#ffffff;color:#323232;"><code><span>&lt;a href=&quot;showjob\.php\?record_id=[0-9]{5}&quot;&gt;(.*?)&lt;\/a&gt;.*?\s*&lt;I&gt;(.*?)&lt;\/I&gt;&lt;br&gt;\s*(.*?)&lt;br&gt;
+</span></code></pre>
+<p>Let's break it down step by step:</p>
+<ol>
+<li>
+<p><code>&lt;a href=&quot;showjob\.php\?record_id=[0-9]{5}&quot;&gt;</code>:</p>
+<ul>
+<li><code>&lt;a href=&quot;showjob\.php\?record_id=</code>: Matches the literal string <code>&lt;a href=&quot;showjob.php?record_id=</code>. The <code>\?</code> is used to escape the question mark (<code>?</code>), and <code>\.</code> is used to escape the dot (<code>.</code>), making sure they are treated as literal characters.</li>
+<li><code>[0-9]{5}</code>: Matches exactly five digits, representing the job record ID.</li>
+<li><code>&quot;&gt;</code>: Matches the closing quote and greater-than sign (<code>&quot;&gt;</code>) following the record ID.</li>
+</ul>
+</li>
+<li>
+<p><code>(.*?)</code>:</p>
+<ul>
+<li><code>(.*?)</code>: This is the first capture group. The <code>.*?</code> is a non-greedy match that captures any character (except for newline characters) as few times as possible. This capture group extracts <strong>the job title</strong>.</li>
+</ul>
+</li>
+<li>
+<p><code>&lt;\/a&gt;</code>:</p>
+<ul>
+<li><code>&lt;\/a&gt;</code>: Matches the closing anchor tag (<code>&lt;/a&gt;</code>). The backslash (<code>\</code>) escapes the forward slash (<code>/</code>), ensuring it is treated as a literal character.</li>
+</ul>
+</li>
+<li>
+<p><code>.*?\s*</code>:</p>
+<ul>
+<li><code>.*?</code>: Matches any character (except for newline characters) as few times as possible (non-greedy match). This ensures we match everything between the job title and the institution name.</li>
+<li><code>\s*</code>: Matches any whitespace characters (including spaces, tabs, and newlines) zero or more times.</li>
+</ul>
+</li>
+<li>
+<p><code>&lt;I&gt;(.*?)&lt;\/I&gt;</code>:</p>
+<ul>
+<li><code>&lt;I&gt;</code>: Matches the opening italic tag (<code>&lt;I&gt;</code>).</li>
+<li><code>(.*?)</code>: This is the second capture group, capturing <strong>the institution name</strong> non-greedily.</li>
+<li><code>&lt;\/I&gt;</code>: Matches the closing italic tag (<code>&lt;/I&gt;</code>).</li>
+</ul>
+</li>
+<li>
+<p><code>&lt;br&gt;\s*(.*?)&lt;br&gt;</code>:</p>
+<ul>
+<li><code>&lt;br&gt;</code>: Matches the HTML line break tag (<code>&lt;br&gt;</code>).</li>
+<li><code>\s*</code>: Matches any whitespace characters zero or more times, allowing for any extra spaces between the HTML tags.</li>
+<li><code>(.*?)</code>: This is the third capture group, capturing <strong>the location</strong> non-greedily.</li>
+<li><code>&lt;br&gt;</code>: Matches the closing line break tag (<code>&lt;br&gt;</code>).</li>
+</ul>
+</li>
+</ol>
+<p>As shown in the image above, this is a PCRE-2 regex. Perl allows us to extract the data using the pattern above.</p>
+<pre data-lang="sh" style="background-color:#ffffff;color:#323232;" class="language-sh "><code class="language-sh" data-lang="sh"><span>curl --silent --location </span><span style="color:#183691;">&#39;https://www.cfd-online.com/Jobs/listjobs.php?category=PhD%20Studentship&#39; </span><span style="font-weight:bold;color:#a71d5d;">| </span><span>perl -0777 -nle </span><span style="color:#183691;">&#39;my $i = 1; print &quot;$i. $1 ($2; $3)\n&quot; and $i++ while /&lt;a href=&quot;showjob\.php\?record_id=[0-9]{5}&quot;&gt;(.*?)&lt;\/a&gt;.*?\s*&lt;I&gt;(.*?)&lt;\/I&gt;&lt;br&gt;\s*(.*?)&lt;br&gt;/gs&#39;
+</span></code></pre>
+<p>Let's also dissect it step by step:</p>
+<ol>
+<li>
+<p><code>perl -0777 -nle '...'</code>:</p>
+<ul>
+<li><code>-0777</code>: Enables slurping mode, making Perl read the entire input file as a single string. This is crucial for matching patterns that span multiple lines.</li>
+<li><code>-n</code>: Wraps the code in an implicit <code>while (&lt;&gt;) { ... }</code> loop, iterating over the input file or standard input.</li>
+<li><code>-l</code>: Handles newline characters by automatically chomping the input line separator and adding it to the <code>print</code> statement.</li>
+<li><code>-e</code>: Allows execution of the provided Perl code directly from the command line.</li>
+</ul>
+</li>
+<li>
+<p><code>'my $i = 1; print &quot;$i. $1 ($2; $3)\n&quot; and $i++ while /PATTERN/gs'</code>:</p>
+<ul>
+<li><code>my $i = 1;</code>: Initializes a counter variable <code>$i</code> to 1. This variable keeps track of the line number for each match.</li>
+<li><code>print &quot;$i. $1 ($2; $3)\n&quot;</code>:
+<ul>
+<li><code>&quot;$i. $1 ($2; $3)\n&quot;</code>: Constructs the output string. It prints the current value of the counter followed by the captured groups.
+<ul>
+<li><code>$i</code>: The current line number.</li>
+<li><code>$1</code>: The first capture group, which contains the job title.</li>
+<li><code>$2</code>: The second capture group, which contains the institution name.</li>
+<li><code>$3</code>: The third capture group, which contains the location.</li>
+</ul>
+</li>
+<li><code>&quot;\n&quot;</code>: Adds a newline character at the end of the output string.</li>
+</ul>
+</li>
+<li><code>and $i++</code>: Increments the counter variable <code>$i</code> after printing. The <code>and</code> operator ensures that <code>$i++</code> is executed only if the <code>print</code> statement is successful.</li>
+<li><code>while /PATTERN/gs</code>:
+<ul>
+<li><code>while ...</code>: A loop that continues as long as the regex pattern matches.</li>
+<li><code>/PATTERN/gs</code>: This is the regex pattern applied globally (<code>g</code>) and treating the input as a single string (<code>s</code>) (i.e., dot/period matches a newline as well).</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>Finally, we can pipe it to <code>head -10</code> to list the 10 most recent jobs:</p>
+<pre data-lang="sh" style="background-color:#ffffff;color:#323232;" class="language-sh "><code class="language-sh" data-lang="sh"><span>curl --silent --location </span><span style="color:#183691;">&#39;https://www.cfd-online.com/Jobs/listjobs.php?category=PhD%20Studentship&#39; </span><span style="font-weight:bold;color:#a71d5d;">| </span><span>perl -0777 -nle </span><span style="color:#183691;">&#39;my $i = 1; print &quot;$i. $1 ($2; $3)\n&quot; and $i++ while /&lt;a href=&quot;showjob\.php\?record_id=[0-9]{5}&quot;&gt;(.*?)&lt;\/a&gt;.*?\s*&lt;I&gt;(.*?)&lt;\/I&gt;&lt;br&gt;\s*(.*?)&lt;br&gt;/gs&#39; </span><span style="font-weight:bold;color:#a71d5d;">| </span><span>head -10
+</span></code></pre>
+<p>Output of the command (date: May 18, 2024):</p>
+<pre style="background-color:#ffffff;color:#323232;"><code><span>1. PhD in Thermal Management for Future Aerospace Propulsion  (Heriot Watt University; United Kingdom, Edinburgh)
+</span><span>2. Modeling and numerical simulation of parietal heat transfer (PROMES-CNRS; France, Perpignan)
+</span><span>3. PhD studentship - Modelling bubble-particle interactions  (University of Birmingham; United Kingdom, Birmingham)
+</span><span>4. Numerical investigation on casting in ESF (Faculty of Eng and Info Sciences, University of Wollongong; Australia, NSW, Wollongong)
+</span><span>5. PhD within the Centre of Computational Engineering Sciences (Cranfield University; United Kingdom, Bedfordshire, Bedford)
+</span><span>6. Stochastic particle methods for two-phase flows (University of Stuttgart; Germany, Baden-Württemberg, Stuttgart)
+</span><span>7. PhD Candidate in fire safety and fire development in buildings  (Norwegian University of Science and Technology; Norway, Trondheim)
+</span><span>8. Graduate Research assistant for CFD simulations of RDE (University of Texas San Antonio; United States, TX, SAN ANTONIO)
+</span><span>9. Atmospheric Thermal Transport  (University of South Florida; United States, FL, Tampa)
+</span><span>10. Simulations of offshore wind farm turbulence (University of Twente; Netherlands, Overijssel, Enschede)
+</span></code></pre>
+<p>Now, at this stage, we have the option to encapsulate this process within a function or a shell script</p>
+<pre data-lang="sh" style="background-color:#ffffff;color:#323232;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="font-weight:bold;color:#795da3;">getcfdjobs</span><span>() {
+</span><span>    </span><span style="font-style:italic;color:#969896;"># number of recent jobs (by default: 10 jobs)
+</span><span>    cnt</span><span style="font-weight:bold;color:#a71d5d;">=</span><span style="color:#183691;">${</span><span>1</span><span style="font-weight:bold;color:#a71d5d;">:-</span><span style="color:#183691;">10}
+</span><span>
+</span><span>    curl --silent --location </span><span style="color:#183691;">&#39;https://www.cfd-online.com/Jobs/listjobs.php?category=PhD%20Studentship&#39; </span><span>\
+</span><span>    </span><span style="font-weight:bold;color:#a71d5d;">| </span><span>perl -0777 -nle \
+</span><span>        </span><span style="color:#183691;">&#39;my $i = 1; print &quot;$i. $1 ($2; $3)\n&quot; and $i++ while /&lt;a href=&quot;showjob\.php\?record_id=[0-9]{5}&quot;&gt;(.*?)&lt;\/a&gt;.*?\s*&lt;I&gt;(.*?)&lt;\/I&gt;&lt;br&gt;\s*(.*?)&lt;br&gt;/gs&#39; </span><span>\
+</span><span>    </span><span style="font-weight:bold;color:#a71d5d;">| </span><span>head -$cnt
+</span><span>}
+</span></code></pre>
+<p>With this, one can retrieve, for example, the last 5 jobs:</p>
+<pre style="background-color:#ffffff;color:#323232;"><code><span>$ getcfdjobs 5
+</span><span>1. PhD in Thermal Management for Future Aerospace Propulsion  (Heriot Watt University; United Kingdom, Edinburgh)
+</span><span>2. Modeling and numerical simulation of parietal heat transfer (PROMES-CNRS; France, Perpignan)
+</span><span>3. PhD studentship - Modelling bubble-particle interactions  (University of Birmingham; United Kingdom, Birmingham)
+</span><span>4. Numerical investigation on casting in ESF (Faculty of Eng and Info Sciences, University of Wollongong; Australia, NSW, Wollongong)
+</span><span>5. PhD within the Centre of Computational Engineering Sciences (Cranfield University; United Kingdom, Bedfordshire, Bedford)
+</span></code></pre>
+<h2 id="2-checking-for-new-jobs">2. Checking for New Jobs</h2>
+<p>The second step involves checking if the website has been updated. There are several ways to accomplish this:</p>
+<ol>
+<li>Checking the hash of the content of the page.</li>
+<li>Looking for the last update time.</li>
+<li>Checking if the list of jobs has been changed (or simply if the most recent job has been updated).</li>
+</ol>
+<p>The first option isn't suitable here, as the number of visits to jobs is updated constantly regardless of whether jobs themselves have been updated. Between the second and third options, the latter seems more efficient, as it only requires reading the page once. The second option involves first reading the last update time and then reading the jobs.</p>
+<p>To implement this, we need to store the jobs in a sort of database file:</p>
+<pre data-lang="sh" style="background-color:#ffffff;color:#323232;" class="language-sh "><code class="language-sh" data-lang="sh"><span>getcfdjobs 100 </span><span style="font-weight:bold;color:#a71d5d;">&gt; </span><span>$HOME/.cfdjobs
+</span></code></pre>
+<p>The following command informs us whether the page has been updated with new jobs:</p>
+<pre data-lang="sh" style="background-color:#ffffff;color:#323232;" class="language-sh "><code class="language-sh" data-lang="sh"><span>diff </span><span style="font-weight:bold;color:#a71d5d;">&lt;</span><span>(getcfdjobs 1) </span><span style="font-weight:bold;color:#a71d5d;">&lt;</span><span>(head -1 $HOME/.cfdjobs) </span><span style="font-weight:bold;color:#a71d5d;">&amp;&amp; </span><span style="color:#62a35c;">echo </span><span style="color:#183691;">&quot;New job not detected&quot; </span><span style="font-weight:bold;color:#a71d5d;">|| </span><span style="color:#62a35c;">echo </span><span style="color:#183691;">&quot;No new job&quot;
+</span></code></pre>
+<p>However, the <code>&lt;()</code> syntax is not available in simpler and more restricted POSIX-compliant shells like dash (commonly used in many Linux distributions where <code>/bin/sh</code> is a symlink to <code>/usr/bin/dash</code>). In such shells, we can achieve the same result by doing the following:</p>
+<pre data-lang="sh" style="background-color:#ffffff;color:#323232;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="font-style:italic;color:#969896;"># Make temporary files
+</span><span style="color:#62a35c;">trap </span><span style="color:#183691;">&#39;rm -f cfd_jobs_old cfd_jobs_new&#39;</span><span> EXIT INT TERM
+</span><span>cfd_jobs_old</span><span style="font-weight:bold;color:#a71d5d;">=</span><span style="color:#183691;">$(</span><span>mktemp</span><span style="color:#183691;">)
+</span><span>cfd_jobs_new</span><span style="font-weight:bold;color:#a71d5d;">=</span><span style="color:#183691;">$(</span><span>mktemp</span><span style="color:#183691;">)
+</span><span>
+</span><span style="font-style:italic;color:#969896;"># First get the latest job
+</span><span>head -1 </span><span style="color:#183691;">&quot;$</span><span>HOME</span><span style="color:#183691;">/.cfdjobs&quot; </span><span style="font-weight:bold;color:#a71d5d;">&gt;</span><span> cfd_jobs_old
+</span><span>
+</span><span style="font-style:italic;color:#969896;"># Update the list of jobs and get the newest job
+</span><span>getcfdjobs 100 </span><span style="font-weight:bold;color:#a71d5d;">| </span><span>tee $HOME/.cfdjobs </span><span style="font-weight:bold;color:#a71d5d;">| </span><span>head -1 </span><span style="font-weight:bold;color:#a71d5d;">&gt;</span><span> cfd_jobs_new
+</span><span>
+</span><span style="font-style:italic;color:#969896;"># Perform diff on the named pipes
+</span><span style="font-weight:bold;color:#a71d5d;">if ! </span><span>diff cfd_jobs_old cfd_jobs_new</span><span style="font-weight:bold;color:#a71d5d;">; then
+</span><span>  </span><span style="color:#62a35c;">echo </span><span style="color:#183691;">&quot;New job detected&quot;
+</span><span style="font-weight:bold;color:#a71d5d;">else
+</span><span>  </span><span style="color:#62a35c;">echo </span><span style="color:#183691;">&quot;No new job&quot;
+</span><span style="font-weight:bold;color:#a71d5d;">fi
+</span></code></pre>
+<h2 id="conclusion">Conclusion</h2>
+<p>With all of these components in place, we can now write a script to check and update the jobs and notify when it happens.
+The script is named <code>checkcfdjobs</code>.<sup class="footnote-reference"><a href="#1">1</a></sup></p>
+<pre data-lang="sh" style="background-color:#ffffff;color:#323232;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="font-style:italic;color:#969896;">#!/bin/sh -e
+</span><span>
+</span><span style="font-style:italic;color:#969896;"># file:        checkcfdjobs
+</span><span style="font-style:italic;color:#969896;"># description: Search for jobs on cfd-online.com and notify if new jobs added
+</span><span style="font-style:italic;color:#969896;"># usage:       checkcfdjobs
+</span><span>
+</span><span style="font-weight:bold;color:#795da3;">notify</span><span>() {
+</span><span>    </span><span style="font-weight:bold;color:#a71d5d;">if </span><span style="color:#62a35c;">[ </span><span>`uname -s` </span><span style="font-weight:bold;color:#a71d5d;">= </span><span style="color:#183691;">&quot;Linux&quot; </span><span style="color:#62a35c;">]</span><span style="font-weight:bold;color:#a71d5d;">; then
+</span><span>       notify-send </span><span style="color:#183691;">&quot;[CFD-Online] New job!&quot;
+</span><span>    </span><span style="font-weight:bold;color:#a71d5d;">elif </span><span style="color:#62a35c;">[ </span><span>`uname -s` </span><span style="font-weight:bold;color:#a71d5d;">= </span><span style="color:#183691;">&quot;Darwin&quot; </span><span style="color:#62a35c;">]</span><span style="font-weight:bold;color:#a71d5d;">; then
+</span><span>       osascript -e </span><span style="color:#183691;">&#39;display notification &quot;New job!&quot; with title &quot;CFD-Online&quot; sound name &quot;Blow&quot;&#39;
+</span><span>   </span><span style="font-weight:bold;color:#a71d5d;">else
+</span><span>       </span><span style="color:#62a35c;">printf </span><span style="color:#183691;">&quot;OS not supported!\n&quot; </span><span style="font-weight:bold;color:#a71d5d;">&amp;&amp; </span><span style="color:#62a35c;">exit</span><span> 1
+</span><span>    </span><span style="font-weight:bold;color:#a71d5d;">fi
+</span><span>}
+</span><span>
+</span><span style="font-weight:bold;color:#795da3;">getcfdjobs</span><span>() {
+</span><span>    cnt</span><span style="font-weight:bold;color:#a71d5d;">=</span><span style="color:#183691;">${</span><span>1</span><span style="font-weight:bold;color:#a71d5d;">:-</span><span style="color:#183691;">10}
+</span><span>    curl --silent --location </span><span style="color:#183691;">&#39;https://www.cfd-online.com/Jobs/listjobs.php?category=PhD%20Studentship&#39; </span><span>\
+</span><span>    </span><span style="font-weight:bold;color:#a71d5d;">| </span><span>perl -0777 -nle \
+</span><span>        </span><span style="color:#183691;">&#39;my $i = 1; print &quot;$i. $1 ($2; $3)\n&quot; and $i++ while /&lt;a href=&quot;showjob\.php\?record_id=[0-9]{5}&quot;&gt;(.*?)&lt;\/a&gt;.*?\s*&lt;I&gt;(.*?)&lt;\/I&gt;&lt;br&gt;\s*(.*?)&lt;br&gt;/gs&#39; </span><span>\
+</span><span>    </span><span style="font-weight:bold;color:#a71d5d;">| </span><span>head -$cnt
+</span><span>}
+</span><span>
+</span><span style="color:#62a35c;">trap </span><span style="color:#183691;">&#39;rm -f cfd_jobs_old cfd_jobs_new&#39;</span><span> EXIT INT TERM
+</span><span>cfd_jobs_old</span><span style="font-weight:bold;color:#a71d5d;">=</span><span style="color:#183691;">$(</span><span>mktemp</span><span style="color:#183691;">)
+</span><span>cfd_jobs_new</span><span style="font-weight:bold;color:#a71d5d;">=</span><span style="color:#183691;">$(</span><span>mktemp</span><span style="color:#183691;">)
+</span><span>
+</span><span>head -1 </span><span style="color:#183691;">&quot;$</span><span>HOME</span><span style="color:#183691;">/.cfdjobs&quot; </span><span style="font-weight:bold;color:#a71d5d;">&gt;</span><span> cfd_jobs_old
+</span><span>getcfdjobs 100 </span><span style="font-weight:bold;color:#a71d5d;">| </span><span>tee $HOME/.cfdjobs </span><span style="font-weight:bold;color:#a71d5d;">| </span><span>head -1 </span><span style="font-weight:bold;color:#a71d5d;">&gt;</span><span> cfd_jobs_new
+</span><span>
+</span><span style="font-weight:bold;color:#a71d5d;">if ! </span><span>diff cfd_jobs_old cfd_jobs_new</span><span style="font-weight:bold;color:#a71d5d;">; then
+</span><span>  notify
+</span><span style="font-weight:bold;color:#a71d5d;">else
+</span><span>  </span><span style="color:#62a35c;">echo </span><span style="color:#183691;">&quot;No new job&quot;
+</span><span style="font-weight:bold;color:#a71d5d;">fi
+</span></code></pre>
+<h3 id="shell-startup">Shell startup</h3>
+<p>Add this line to your shell startup configuration file (<code>.zshrc</code> or <code>.bashrc</code>):</p>
+<pre data-lang="sh" style="background-color:#ffffff;color:#323232;" class="language-sh "><code class="language-sh" data-lang="sh"><span>checkcfdjobs
+</span></code></pre>
+<p>The script will now execute every time a new shell is spawned.</p>
+<h3 id="cron-job">Cron-job</h3>
+<p>Add the following job to your crontab (<code>crontab -e</code>):</p>
+<pre data-lang="cron" style="background-color:#ffffff;color:#323232;" class="language-cron "><code class="language-cron" data-lang="cron"><span># Every 3 hours
+</span><span>0 */3 * * * /absolute/path/to/checkcfdjobs
+</span></code></pre>
+<p>Additionally there are ways to send email from command-line, but I skip discussing that here.</p>
+<hr />
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p>Put this script somewhere in your <code>PATH</code> (usually in <code>$HOME/bin</code> or <code>$HOME/.local/bin</code>).</p>
+</div>
+
+
+    </div>
+  </section>
+  <footer>
+    <p id="copyright">Copyright &copy; 2024<a href="/" id="home">Ali Bozorgzadeh</a></p>
+  </footer>
+  </div>
+</body>
+</html>

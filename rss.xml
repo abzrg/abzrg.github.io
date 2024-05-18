@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title>Ali&#x27;s Blog</title>
+      <link>https://abzrg.github.io</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://abzrg.github.io/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Sat, 18 May 2024 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>How I Look for CFD Jobs from the Command Line</title>
+          <pubDate>Sat, 18 May 2024 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://abzrg.github.io/blog/find-cfd-job-cli/</link>
+          <guid>https://abzrg.github.io/blog/find-cfd-job-cli/</guid>
+          <description>&lt;h2 id=&quot;introduction&quot;&gt;Introduction&lt;&#x2F;h2&gt;
+&lt;p&gt;On a daily or weekly basis, I look for Ph.D. studentships on various websites, chief among which being the good old &lt;a href=&quot;https:&#x2F;&#x2F;www.cfd-online.com&quot;&gt;cfd-online&lt;&#x2F;a&gt;, which mostly posts CFD-related jobs at &lt;a href=&quot;https:&#x2F;&#x2F;www.cfd-online.com&#x2F;Jobs&#x2F;listjobs.php?category=PhD%20Studentship&quot;&gt;this URL&lt;&#x2F;a&gt;.
+The issue with this website is the absence of an email notification feature or an RSS feed, which would otherwise enable me to check for new job postings directly from the comfort of the command line.
+This post is my attempt to automate the process of checking for new jobs.&lt;&#x2F;p&gt;
+&lt;p&gt;I want to write a script to: 1. List all the recent (let&#x27;s say 10) jobs, and 2. Check whether any new jobs have been posted.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;dependencies&quot;&gt;Dependencies&lt;&#x2F;h3&gt;
+&lt;p&gt;For the following commands and scripts to work, we need two programs that may not be pre-installed by default on all Unix operating systems, namely &lt;code&gt;curl&lt;&#x2F;code&gt; and &lt;code&gt;perl&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# Debian-based Linux Distros
+&lt;&#x2F;span&gt;&lt;span&gt;sudo apt install curl perl
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# MacOS
+&lt;&#x2F;span&gt;&lt;span&gt;brew install curl perl
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h3 id=&quot;final-one-liner&quot;&gt;Final One-Liner&lt;&#x2F;h3&gt;
+&lt;p&gt;For those who just want to use the command without delving into the forthcoming details, here’s the one-liner:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span&gt;curl --silent --location &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;#39;https:&#x2F;&#x2F;www.cfd-online.com&#x2F;Jobs&#x2F;listjobs.php?category=PhD%20Studentship&amp;#39; &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;| &lt;&#x2F;span&gt;&lt;span&gt;perl -0777 -nle &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;#39;my $i = 1; print &amp;quot;$i. $1 ($2; $3)\n&amp;quot; and $i++ while &#x2F;&amp;lt;a href=&amp;quot;showjob\.php\?record_id=[0-9]{5}&amp;quot;&amp;gt;(.*?)&amp;lt;\&#x2F;a&amp;gt;.*?\s*&amp;lt;I&amp;gt;(.*?)&amp;lt;\&#x2F;I&amp;gt;&amp;lt;br&amp;gt;\s*(.*?)&amp;lt;br&amp;gt;&#x2F;gs&amp;#39; &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;| &lt;&#x2F;span&gt;&lt;span&gt;head -10
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h2 id=&quot;1-getting-the-list-of-jobs&quot;&gt;1. Getting the List of Jobs&lt;&#x2F;h2&gt;
+&lt;p&gt;I am looking for the following information:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;The title of the position&lt;&#x2F;li&gt;
+&lt;li&gt;The name of the institute or university&lt;&#x2F;li&gt;
+&lt;li&gt;The location of the job&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;To extract these data, we first retrieve the data:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span&gt;curl --silent --location &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;#39;https:&#x2F;&#x2F;www.cfd-online.com&#x2F;Jobs&#x2F;listjobs.php?category=PhD%20Studentship&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt; --output jobs.html  &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# or curl -sL
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;-s&#x2F;--silent&lt;&#x2F;code&gt;: suppresses the progress information.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;-L&#x2F;--location&lt;&#x2F;code&gt;: tells curl to follow redirects (If the requested URL has moved to a new location, &lt;code&gt;curl&lt;&#x2F;code&gt; will follow the HTTP Location headers to fetch the new location).&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;We can examine the structure of the page. The following section appears somewhere in the middle of the page:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;html&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-html &quot;&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span&gt;...
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;h2&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;CFD Jobs Database - List of Jobs&amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;h2&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;table &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;border&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;cellpadding&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;5 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;width&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;100%&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;H3&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;Category: PhD Studentship&amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;H3&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;    &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;tr&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;      &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;td&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;         &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;b&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;a &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;href&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;showjob.php?record_id=19178&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;PhD in Thermal Management for Future Aerospace Propulsion &amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;a&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;&amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;b&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;br&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;         &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;I&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;Heriot Watt University&amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;I&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;br&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;                  United Kingdom, Edinburgh&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;br&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;         &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;font &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;size&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;-2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;face&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;helvetica&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;Record Last Modified 12:43:29 May 17 2024, Closure Date Jul 22 2024&amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;font&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;      &amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;td&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;      &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;td &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;align&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;CENTER&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;         &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;form &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;action&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;showjob.php&amp;quot; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;method&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;GET&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;input &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;type&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;hidden&amp;quot; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;name&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;record_id&amp;quot; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;value&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;19178&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;input &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;type&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;submit&amp;quot; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;value&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot; View Full Record &amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;         &amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;form&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;         &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;font &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;size&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;-2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;face&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;helvetica&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;Read 166 times&amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;font&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;td&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;tr&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;      &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;tr&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;      &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;td&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;         &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;b&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;a &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;href&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;showjob.php?record_id=19173&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;Modeling and numerical simulation of parietal heat transfer&amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;a&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;&amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;b&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;br&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;         &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;I&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;PROMES-CNRS&amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;I&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;br&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;                  France, Perpignan&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;br&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;         &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;font &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;size&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;-2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;face&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;helvetica&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;Record Last Modified 22:42:21 May 16 2024, Closure Date Not Specified&amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;font&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;      &amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;td&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;      &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;td &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;align&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;CENTER&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;         &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;form &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;action&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;showjob.php&amp;quot; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;method&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;GET&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;input &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;type&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;hidden&amp;quot; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;name&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;record_id&amp;quot; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;value&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;19173&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;input &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;type&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;submit&amp;quot; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;value&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot; View Full Record &amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;         &amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;form&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;         &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;font &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;size&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;-2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#795da3;&quot;&gt;face&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;helvetica&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;Read 184 times&amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;font&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;td&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &amp;lt;&#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#63a35c;&quot;&gt;tr&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;...
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;As you can see, jobs are listed in a &lt;code&gt;&amp;lt;table&amp;gt;&lt;&#x2F;code&gt;, with each title surrounded by a &lt;code&gt;b&lt;&#x2F;code&gt; tag, the name of the institute inside an &lt;code&gt;I&lt;&#x2F;code&gt; tag, and the location shortly follows the name of the institution before reaching a &lt;code&gt;&amp;lt;br&amp;gt;&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;Before we go over how to extract the necessary information, I would like to point you to an extremely useful website, &lt;a href=&quot;https:&#x2F;&#x2F;regex101.com&quot;&gt;regex101.com&lt;&#x2F;a&gt;, which allows you to experiment with (various dialects of) regex. Here&#x27;s my regex:&lt;&#x2F;p&gt;
+&lt;!-- From Wolfgang&#x27;s Blog --&gt;
+&lt;div class=&quot;post__image&quot;&gt;
+    &lt;figure&gt;
+    &lt;a href=&quot;https:&#x2F;&#x2F;abzrg.github.io&#x2F;blog&#x2F;find-cfd-job-cli&#x2F;regex101.png&quot; class=&quot;image-link&quot; target=&quot;_blank&quot;&gt;
+        &lt;img src=&quot;https:&#x2F;&#x2F;abzrg.github.io&#x2F;blog&#x2F;find-cfd-job-cli&#x2F;regex101.png&quot; alt=&quot;regex101 experimentation&quot;&gt;
+    &lt;&#x2F;a&gt;
+    &lt;!-- &lt;figcaption&gt;&quot;Regex101 Experimentation&quot;&lt;&#x2F;figcaption&gt; --&gt;
+    &lt;&#x2F;figure&gt;
+&lt;&#x2F;div&gt;
+&lt;p&gt;Moving on, the following regex matches the information I need:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#ffffff;color:#323232;&quot;&gt;&lt;code&gt;&lt;span&gt;&amp;lt;a href=&amp;quot;showjob\.php\?record_id=[0-9]{5}&amp;quot;&amp;gt;(.*?)&amp;lt;\&#x2F;a&amp;gt;.*?\s*&amp;lt;I&amp;gt;(.*?)&amp;lt;\&#x2F;I&amp;gt;&amp;lt;br&amp;gt;\s*(.*?)&amp;lt;br&amp;gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Let&#x27;s break it down step by step:&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;&amp;lt;a href=&amp;quot;showjob\.php\?record_id=[0-9]{5}&amp;quot;&amp;gt;&lt;&#x2F;code&gt;:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;&amp;lt;a href=&amp;quot;showjob\.php\?record_id=&lt;&#x2F;code&gt;: Matches the literal string &lt;code&gt;&amp;lt;a href=&amp;quot;showjob.php?record_id=&lt;&#x2F;code&gt;. The &lt;code&gt;\?&lt;&#x2F;code&gt; is used to escape the question mark (&lt;code&gt;?&lt;&#x2F;code&gt;), and &lt;code&gt;\.&lt;&#x2F;code&gt; is used to escape the dot (&lt;code&gt;.&lt;&#x2F;code&gt;), making sure they are treated as literal characters.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;[0-9]{5}&lt;&#x2F;code&gt;: Matches exactly five digits, representing the job record ID.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;&amp;quot;&amp;gt;&lt;&#x2F;code&gt;: Matches the closing quote and greater-than sign (&lt;code&gt;&amp;quot;&amp;gt;&lt;&#x2F;code&gt;) following the record ID.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;(.*?)&lt;&#x2F;code&gt;:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;(.*?)&lt;&#x2F;code&gt;: This is the first capture group. The &lt;code&gt;.*?&lt;&#x2F;code&gt; is a non-greedy match that captures any character (except for newline characters) as few times as possible. This capture group extracts &lt;strong&gt;the job title&lt;&#x2F;strong&gt;.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;&amp;lt;\&#x2F;a&amp;gt;&lt;&#x2F;code&gt;:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;&amp;lt;\&#x2F;a&amp;gt;&lt;&#x2F;code&gt;: Matches the closing anchor tag (&lt;code&gt;&amp;lt;&#x2F;a&amp;gt;&lt;&#x2F;code&gt;). The backslash (&lt;code&gt;\&lt;&#x2F;code&gt;) escapes the forward slash (&lt;code&gt;&#x2F;&lt;&#x2F;code&gt;), ensuring it is treated as a literal character.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;.*?\s*&lt;&#x2F;code&gt;:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;.*?&lt;&#x2F;code&gt;: Matches any character (except for newline characters) as few times as possible (non-greedy match). This ensures we match everything between the job title and the institution name.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;\s*&lt;&#x2F;code&gt;: Matches any whitespace characters (including spaces, tabs, and newlines) zero or more times.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;&amp;lt;I&amp;gt;(.*?)&amp;lt;\&#x2F;I&amp;gt;&lt;&#x2F;code&gt;:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;&amp;lt;I&amp;gt;&lt;&#x2F;code&gt;: Matches the opening italic tag (&lt;code&gt;&amp;lt;I&amp;gt;&lt;&#x2F;code&gt;).&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;(.*?)&lt;&#x2F;code&gt;: This is the second capture group, capturing &lt;strong&gt;the institution name&lt;&#x2F;strong&gt; non-greedily.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;&amp;lt;\&#x2F;I&amp;gt;&lt;&#x2F;code&gt;: Matches the closing italic tag (&lt;code&gt;&amp;lt;&#x2F;I&amp;gt;&lt;&#x2F;code&gt;).&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;&amp;lt;br&amp;gt;\s*(.*?)&amp;lt;br&amp;gt;&lt;&#x2F;code&gt;:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;&amp;lt;br&amp;gt;&lt;&#x2F;code&gt;: Matches the HTML line break tag (&lt;code&gt;&amp;lt;br&amp;gt;&lt;&#x2F;code&gt;).&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;\s*&lt;&#x2F;code&gt;: Matches any whitespace characters zero or more times, allowing for any extra spaces between the HTML tags.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;(.*?)&lt;&#x2F;code&gt;: This is the third capture group, capturing &lt;strong&gt;the location&lt;&#x2F;strong&gt; non-greedily.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;&amp;lt;br&amp;gt;&lt;&#x2F;code&gt;: Matches the closing line break tag (&lt;code&gt;&amp;lt;br&amp;gt;&lt;&#x2F;code&gt;).&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;As shown in the image above, this is a PCRE-2 regex. Perl allows us to extract the data using the pattern above.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span&gt;curl --silent --location &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;#39;https:&#x2F;&#x2F;www.cfd-online.com&#x2F;Jobs&#x2F;listjobs.php?category=PhD%20Studentship&amp;#39; &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;| &lt;&#x2F;span&gt;&lt;span&gt;perl -0777 -nle &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;#39;my $i = 1; print &amp;quot;$i. $1 ($2; $3)\n&amp;quot; and $i++ while &#x2F;&amp;lt;a href=&amp;quot;showjob\.php\?record_id=[0-9]{5}&amp;quot;&amp;gt;(.*?)&amp;lt;\&#x2F;a&amp;gt;.*?\s*&amp;lt;I&amp;gt;(.*?)&amp;lt;\&#x2F;I&amp;gt;&amp;lt;br&amp;gt;\s*(.*?)&amp;lt;br&amp;gt;&#x2F;gs&amp;#39;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Let&#x27;s also dissect it step by step:&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;perl -0777 -nle &#x27;...&#x27;&lt;&#x2F;code&gt;:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;-0777&lt;&#x2F;code&gt;: Enables slurping mode, making Perl read the entire input file as a single string. This is crucial for matching patterns that span multiple lines.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;-n&lt;&#x2F;code&gt;: Wraps the code in an implicit &lt;code&gt;while (&amp;lt;&amp;gt;) { ... }&lt;&#x2F;code&gt; loop, iterating over the input file or standard input.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;-l&lt;&#x2F;code&gt;: Handles newline characters by automatically chomping the input line separator and adding it to the &lt;code&gt;print&lt;&#x2F;code&gt; statement.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;-e&lt;&#x2F;code&gt;: Allows execution of the provided Perl code directly from the command line.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;&#x27;my $i = 1; print &amp;quot;$i. $1 ($2; $3)\n&amp;quot; and $i++ while &#x2F;PATTERN&#x2F;gs&#x27;&lt;&#x2F;code&gt;:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;my $i = 1;&lt;&#x2F;code&gt;: Initializes a counter variable &lt;code&gt;$i&lt;&#x2F;code&gt; to 1. This variable keeps track of the line number for each match.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;print &amp;quot;$i. $1 ($2; $3)\n&amp;quot;&lt;&#x2F;code&gt;:
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;&amp;quot;$i. $1 ($2; $3)\n&amp;quot;&lt;&#x2F;code&gt;: Constructs the output string. It prints the current value of the counter followed by the captured groups.
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;$i&lt;&#x2F;code&gt;: The current line number.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;$1&lt;&#x2F;code&gt;: The first capture group, which contains the job title.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;$2&lt;&#x2F;code&gt;: The second capture group, which contains the institution name.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;$3&lt;&#x2F;code&gt;: The third capture group, which contains the location.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;&amp;quot;\n&amp;quot;&lt;&#x2F;code&gt;: Adds a newline character at the end of the output string.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;and $i++&lt;&#x2F;code&gt;: Increments the counter variable &lt;code&gt;$i&lt;&#x2F;code&gt; after printing. The &lt;code&gt;and&lt;&#x2F;code&gt; operator ensures that &lt;code&gt;$i++&lt;&#x2F;code&gt; is executed only if the &lt;code&gt;print&lt;&#x2F;code&gt; statement is successful.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;while &#x2F;PATTERN&#x2F;gs&lt;&#x2F;code&gt;:
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;while ...&lt;&#x2F;code&gt;: A loop that continues as long as the regex pattern matches.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;&#x2F;PATTERN&#x2F;gs&lt;&#x2F;code&gt;: This is the regex pattern applied globally (&lt;code&gt;g&lt;&#x2F;code&gt;) and treating the input as a single string (&lt;code&gt;s&lt;&#x2F;code&gt;) (i.e., dot&#x2F;period matches a newline as well).&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;Finally, we can pipe it to &lt;code&gt;head -10&lt;&#x2F;code&gt; to list the 10 most recent jobs:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span&gt;curl --silent --location &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;#39;https:&#x2F;&#x2F;www.cfd-online.com&#x2F;Jobs&#x2F;listjobs.php?category=PhD%20Studentship&amp;#39; &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;| &lt;&#x2F;span&gt;&lt;span&gt;perl -0777 -nle &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;#39;my $i = 1; print &amp;quot;$i. $1 ($2; $3)\n&amp;quot; and $i++ while &#x2F;&amp;lt;a href=&amp;quot;showjob\.php\?record_id=[0-9]{5}&amp;quot;&amp;gt;(.*?)&amp;lt;\&#x2F;a&amp;gt;.*?\s*&amp;lt;I&amp;gt;(.*?)&amp;lt;\&#x2F;I&amp;gt;&amp;lt;br&amp;gt;\s*(.*?)&amp;lt;br&amp;gt;&#x2F;gs&amp;#39; &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;| &lt;&#x2F;span&gt;&lt;span&gt;head -10
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Output of the command (date: May 18, 2024):&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#ffffff;color:#323232;&quot;&gt;&lt;code&gt;&lt;span&gt;1. PhD in Thermal Management for Future Aerospace Propulsion  (Heriot Watt University; United Kingdom, Edinburgh)
+&lt;&#x2F;span&gt;&lt;span&gt;2. Modeling and numerical simulation of parietal heat transfer (PROMES-CNRS; France, Perpignan)
+&lt;&#x2F;span&gt;&lt;span&gt;3. PhD studentship - Modelling bubble-particle interactions  (University of Birmingham; United Kingdom, Birmingham)
+&lt;&#x2F;span&gt;&lt;span&gt;4. Numerical investigation on casting in ESF (Faculty of Eng and Info Sciences, University of Wollongong; Australia, NSW, Wollongong)
+&lt;&#x2F;span&gt;&lt;span&gt;5. PhD within the Centre of Computational Engineering Sciences (Cranfield University; United Kingdom, Bedfordshire, Bedford)
+&lt;&#x2F;span&gt;&lt;span&gt;6. Stochastic particle methods for two-phase flows (University of Stuttgart; Germany, Baden-Württemberg, Stuttgart)
+&lt;&#x2F;span&gt;&lt;span&gt;7. PhD Candidate in fire safety and fire development in buildings  (Norwegian University of Science and Technology; Norway, Trondheim)
+&lt;&#x2F;span&gt;&lt;span&gt;8. Graduate Research assistant for CFD simulations of RDE (University of Texas San Antonio; United States, TX, SAN ANTONIO)
+&lt;&#x2F;span&gt;&lt;span&gt;9. Atmospheric Thermal Transport  (University of South Florida; United States, FL, Tampa)
+&lt;&#x2F;span&gt;&lt;span&gt;10. Simulations of offshore wind farm turbulence (University of Twente; Netherlands, Overijssel, Enschede)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Now, at this stage, we have the option to encapsulate this process within a function or a shell script&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;getcfdjobs&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# number of recent jobs (by default: 10 jobs)
+&lt;&#x2F;span&gt;&lt;span&gt;    cnt&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;${&lt;&#x2F;span&gt;&lt;span&gt;1&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;:-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;10}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    curl --silent --location &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;#39;https:&#x2F;&#x2F;www.cfd-online.com&#x2F;Jobs&#x2F;listjobs.php?category=PhD%20Studentship&amp;#39; &lt;&#x2F;span&gt;&lt;span&gt;\
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;| &lt;&#x2F;span&gt;&lt;span&gt;perl -0777 -nle \
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;#39;my $i = 1; print &amp;quot;$i. $1 ($2; $3)\n&amp;quot; and $i++ while &#x2F;&amp;lt;a href=&amp;quot;showjob\.php\?record_id=[0-9]{5}&amp;quot;&amp;gt;(.*?)&amp;lt;\&#x2F;a&amp;gt;.*?\s*&amp;lt;I&amp;gt;(.*?)&amp;lt;\&#x2F;I&amp;gt;&amp;lt;br&amp;gt;\s*(.*?)&amp;lt;br&amp;gt;&#x2F;gs&amp;#39; &lt;&#x2F;span&gt;&lt;span&gt;\
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;| &lt;&#x2F;span&gt;&lt;span&gt;head -$cnt
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;With this, one can retrieve, for example, the last 5 jobs:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#ffffff;color:#323232;&quot;&gt;&lt;code&gt;&lt;span&gt;$ getcfdjobs 5
+&lt;&#x2F;span&gt;&lt;span&gt;1. PhD in Thermal Management for Future Aerospace Propulsion  (Heriot Watt University; United Kingdom, Edinburgh)
+&lt;&#x2F;span&gt;&lt;span&gt;2. Modeling and numerical simulation of parietal heat transfer (PROMES-CNRS; France, Perpignan)
+&lt;&#x2F;span&gt;&lt;span&gt;3. PhD studentship - Modelling bubble-particle interactions  (University of Birmingham; United Kingdom, Birmingham)
+&lt;&#x2F;span&gt;&lt;span&gt;4. Numerical investigation on casting in ESF (Faculty of Eng and Info Sciences, University of Wollongong; Australia, NSW, Wollongong)
+&lt;&#x2F;span&gt;&lt;span&gt;5. PhD within the Centre of Computational Engineering Sciences (Cranfield University; United Kingdom, Bedfordshire, Bedford)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h2 id=&quot;2-checking-for-new-jobs&quot;&gt;2. Checking for New Jobs&lt;&#x2F;h2&gt;
+&lt;p&gt;The second step involves checking if the website has been updated. There are several ways to accomplish this:&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;Checking the hash of the content of the page.&lt;&#x2F;li&gt;
+&lt;li&gt;Looking for the last update time.&lt;&#x2F;li&gt;
+&lt;li&gt;Checking if the list of jobs has been changed (or simply if the most recent job has been updated).&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;The first option isn&#x27;t suitable here, as the number of visits to jobs is updated constantly regardless of whether jobs themselves have been updated. Between the second and third options, the latter seems more efficient, as it only requires reading the page once. The second option involves first reading the last update time and then reading the jobs.&lt;&#x2F;p&gt;
+&lt;p&gt;To implement this, we need to store the jobs in a sort of database file:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span&gt;getcfdjobs 100 &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span&gt;$HOME&#x2F;.cfdjobs
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The following command informs us whether the page has been updated with new jobs:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span&gt;diff &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span&gt;(getcfdjobs 1) &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span&gt;(head -1 $HOME&#x2F;.cfdjobs) &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;&amp;amp;&amp;amp; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;echo &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;New job not detected&amp;quot; &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;|| &lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;echo &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;No new job&amp;quot;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;However, the &lt;code&gt;&amp;lt;()&lt;&#x2F;code&gt; syntax is not available in simpler and more restricted POSIX-compliant shells like dash (commonly used in many Linux distributions where &lt;code&gt;&#x2F;bin&#x2F;sh&lt;&#x2F;code&gt; is a symlink to &lt;code&gt;&#x2F;usr&#x2F;bin&#x2F;dash&lt;&#x2F;code&gt;). In such shells, we can achieve the same result by doing the following:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# Make temporary files
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;trap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;#39;rm -f cfd_jobs_old cfd_jobs_new&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt; EXIT INT TERM
+&lt;&#x2F;span&gt;&lt;span&gt;cfd_jobs_old&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;$(&lt;&#x2F;span&gt;&lt;span&gt;mktemp&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;cfd_jobs_new&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;$(&lt;&#x2F;span&gt;&lt;span&gt;mktemp&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# First get the latest job
+&lt;&#x2F;span&gt;&lt;span&gt;head -1 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;$&lt;&#x2F;span&gt;&lt;span&gt;HOME&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&#x2F;.cfdjobs&amp;quot; &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;&amp;gt;&lt;&#x2F;span&gt;&lt;span&gt; cfd_jobs_old
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# Update the list of jobs and get the newest job
+&lt;&#x2F;span&gt;&lt;span&gt;getcfdjobs 100 &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;| &lt;&#x2F;span&gt;&lt;span&gt;tee $HOME&#x2F;.cfdjobs &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;| &lt;&#x2F;span&gt;&lt;span&gt;head -1 &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;&amp;gt;&lt;&#x2F;span&gt;&lt;span&gt; cfd_jobs_new
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# Perform diff on the named pipes
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;if ! &lt;&#x2F;span&gt;&lt;span&gt;diff cfd_jobs_old cfd_jobs_new&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;; then
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;echo &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;New job detected&amp;quot;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;else
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;echo &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;No new job&amp;quot;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;fi
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;&#x2F;h2&gt;
+&lt;p&gt;With all of these components in place, we can now write a script to check and update the jobs and notify when it happens.
+The script is named &lt;code&gt;checkcfdjobs&lt;&#x2F;code&gt;.&lt;sup class=&quot;footnote-reference&quot;&gt;&lt;a href=&quot;#1&quot;&gt;1&lt;&#x2F;a&gt;&lt;&#x2F;sup&gt;&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;#!&#x2F;bin&#x2F;sh -e
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# file:        checkcfdjobs
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# description: Search for jobs on cfd-online.com and notify if new jobs added
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# usage:       checkcfdjobs
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;notify&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;[ &lt;&#x2F;span&gt;&lt;span&gt;`uname -s` &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;Linux&amp;quot; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;]&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;; then
+&lt;&#x2F;span&gt;&lt;span&gt;       notify-send &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;[CFD-Online] New job!&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;elif &lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;[ &lt;&#x2F;span&gt;&lt;span&gt;`uname -s` &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;Darwin&amp;quot; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;]&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;; then
+&lt;&#x2F;span&gt;&lt;span&gt;       osascript -e &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;#39;display notification &amp;quot;New job!&amp;quot; with title &amp;quot;CFD-Online&amp;quot; sound name &amp;quot;Blow&amp;quot;&amp;#39;
+&lt;&#x2F;span&gt;&lt;span&gt;   &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;else
+&lt;&#x2F;span&gt;&lt;span&gt;       &lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;printf &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;OS not supported!\n&amp;quot; &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;&amp;amp;&amp;amp; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;exit&lt;&#x2F;span&gt;&lt;span&gt; 1
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;fi
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;getcfdjobs&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;    cnt&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;${&lt;&#x2F;span&gt;&lt;span&gt;1&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;:-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;10}
+&lt;&#x2F;span&gt;&lt;span&gt;    curl --silent --location &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;#39;https:&#x2F;&#x2F;www.cfd-online.com&#x2F;Jobs&#x2F;listjobs.php?category=PhD%20Studentship&amp;#39; &lt;&#x2F;span&gt;&lt;span&gt;\
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;| &lt;&#x2F;span&gt;&lt;span&gt;perl -0777 -nle \
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;#39;my $i = 1; print &amp;quot;$i. $1 ($2; $3)\n&amp;quot; and $i++ while &#x2F;&amp;lt;a href=&amp;quot;showjob\.php\?record_id=[0-9]{5}&amp;quot;&amp;gt;(.*?)&amp;lt;\&#x2F;a&amp;gt;.*?\s*&amp;lt;I&amp;gt;(.*?)&amp;lt;\&#x2F;I&amp;gt;&amp;lt;br&amp;gt;\s*(.*?)&amp;lt;br&amp;gt;&#x2F;gs&amp;#39; &lt;&#x2F;span&gt;&lt;span&gt;\
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;| &lt;&#x2F;span&gt;&lt;span&gt;head -$cnt
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;trap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;#39;rm -f cfd_jobs_old cfd_jobs_new&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt; EXIT INT TERM
+&lt;&#x2F;span&gt;&lt;span&gt;cfd_jobs_old&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;$(&lt;&#x2F;span&gt;&lt;span&gt;mktemp&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;cfd_jobs_new&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;$(&lt;&#x2F;span&gt;&lt;span&gt;mktemp&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;head -1 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;$&lt;&#x2F;span&gt;&lt;span&gt;HOME&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&#x2F;.cfdjobs&amp;quot; &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;&amp;gt;&lt;&#x2F;span&gt;&lt;span&gt; cfd_jobs_old
+&lt;&#x2F;span&gt;&lt;span&gt;getcfdjobs 100 &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;| &lt;&#x2F;span&gt;&lt;span&gt;tee $HOME&#x2F;.cfdjobs &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;| &lt;&#x2F;span&gt;&lt;span&gt;head -1 &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;&amp;gt;&lt;&#x2F;span&gt;&lt;span&gt; cfd_jobs_new
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;if ! &lt;&#x2F;span&gt;&lt;span&gt;diff cfd_jobs_old cfd_jobs_new&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;; then
+&lt;&#x2F;span&gt;&lt;span&gt;  notify
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;else
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;echo &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;No new job&amp;quot;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;fi
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h3 id=&quot;shell-startup&quot;&gt;Shell startup&lt;&#x2F;h3&gt;
+&lt;p&gt;Add this line to your shell startup configuration file (&lt;code&gt;.zshrc&lt;&#x2F;code&gt; or &lt;code&gt;.bashrc&lt;&#x2F;code&gt;):&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span&gt;checkcfdjobs
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The script will now execute every time a new shell is spawned.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;cron-job&quot;&gt;Cron-job&lt;&#x2F;h3&gt;
+&lt;p&gt;Add the following job to your crontab (&lt;code&gt;crontab -e&lt;&#x2F;code&gt;):&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;cron&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-cron &quot;&gt;&lt;code class=&quot;language-cron&quot; data-lang=&quot;cron&quot;&gt;&lt;span&gt;# Every 3 hours
+&lt;&#x2F;span&gt;&lt;span&gt;0 *&#x2F;3 * * * &#x2F;absolute&#x2F;path&#x2F;to&#x2F;checkcfdjobs
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Additionally there are ways to send email from command-line, but I skip discussing that here.&lt;&#x2F;p&gt;
+&lt;hr &#x2F;&gt;
+&lt;div class=&quot;footnote-definition&quot; id=&quot;1&quot;&gt;&lt;sup class=&quot;footnote-definition-label&quot;&gt;1&lt;&#x2F;sup&gt;
+&lt;p&gt;Put this script somewhere in your &lt;code&gt;PATH&lt;&#x2F;code&gt; (usually in &lt;code&gt;$HOME&#x2F;bin&lt;&#x2F;code&gt; or &lt;code&gt;$HOME&#x2F;.local&#x2F;bin&lt;&#x2F;code&gt;).&lt;&#x2F;p&gt;
+&lt;&#x2F;div&gt;
+</description>
+      </item>
+      <item>
+          <title>Fix wget Download Freezing</title>
+          <pubDate>Sat, 04 May 2024 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://abzrg.github.io/blog/fix-wget-download-freeze/</link>
+          <guid>https://abzrg.github.io/blog/fix-wget-download-freeze/</guid>
+          <description>&lt;p&gt;One annoying problem of downloading files using &lt;code&gt;wget&lt;&#x2F;code&gt; is that when some network
+problem happens, it does not (by default) retry, and the download gets stuck,&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#ffffff;color:#323232;&quot;&gt;&lt;code&gt;&lt;span&gt;60%[========================&amp;gt;                ]  71.62M --.-KB&#x2F;s  eta 7m 43s
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;and I have to &lt;code&gt;^C&lt;&#x2F;code&gt; and retry myself manually.&lt;&#x2F;p&gt;
+&lt;p&gt;To fix this, &lt;code&gt;--read-timeout=seconds&lt;&#x2F;code&gt; comes to the rescue. According to the &lt;code&gt;wget&lt;&#x2F;code&gt;&#x27;s man page:&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;pre style=&quot;background-color:#ffffff;color:#323232;&quot;&gt;&lt;code&gt;&lt;span&gt;--read-timeout=seconds
+&lt;&#x2F;span&gt;&lt;span&gt;    Set the read (and write) timeout to seconds seconds.  The
+&lt;&#x2F;span&gt;&lt;span&gt;    &amp;quot;time&amp;quot; of this timeout refers to idle time: if, at any
+&lt;&#x2F;span&gt;&lt;span&gt;    point in the download, no data is received for more than the
+&lt;&#x2F;span&gt;&lt;span&gt;    specified number of seconds, reading fails and the
+&lt;&#x2F;span&gt;&lt;span&gt;    download is restarted.  This option does not directly affect
+&lt;&#x2F;span&gt;&lt;span&gt;    the duration of the entire download.
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;We can adjust the timeout to a shorter interval, like every &lt;code&gt;20&lt;&#x2F;code&gt; seconds. So after 20 seconds of not receiving data, download is failed, and &lt;code&gt;wget&lt;&#x2F;code&gt; will automatically restart the download.&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#ffffff;color:#323232;&quot;&gt;&lt;code&gt;&lt;span&gt;wget --read-timeout=20 &amp;lt;url&amp;gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;However, we want &lt;code&gt;wget&lt;&#x2F;code&gt; to not ignore the previous download progress and start from where it left off. For that, we use the &lt;code&gt;-c&#x2F;--continue&lt;&#x2F;code&gt; option.&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#ffffff;color:#323232;&quot;&gt;&lt;code&gt;&lt;span&gt;wget --read-timeout=20 --continue &amp;lt;url&amp;gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;And finally, we want &lt;code&gt;wget&lt;&#x2F;code&gt; to try infinitely after each download failure. For this, we specify the &lt;code&gt;--tries=number&lt;&#x2F;code&gt; option, whose default &lt;code&gt;number&lt;&#x2F;code&gt; is set to &lt;code&gt;20&lt;&#x2F;code&gt; tries. We specify &lt;code&gt;0&lt;&#x2F;code&gt; (or &lt;code&gt;inf&lt;&#x2F;code&gt;) for infinite trying.&lt;sup class=&quot;footnote-reference&quot;&gt;&lt;a href=&quot;#1&quot;&gt;1&lt;&#x2F;a&gt;&lt;&#x2F;sup&gt; So our final command is the following:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#ffffff;color:#323232;&quot;&gt;&lt;code&gt;&lt;span&gt;wget --read-timeout=20 --continue --tries=0 &amp;lt;url&amp;gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;br&gt;
+&lt;hr &#x2F;&gt;
+&lt;div class=&quot;footnote-definition&quot; id=&quot;1&quot;&gt;&lt;sup class=&quot;footnote-definition-label&quot;&gt;1&lt;&#x2F;sup&gt;
+&lt;p&gt;Note that it does not retry for fatal errors like &amp;quot;connection refused&amp;quot; or &amp;quot;not found,&amp;quot; which is nice.&lt;&#x2F;p&gt;
+&lt;&#x2F;div&gt;
+</description>
+      </item>
+      <item>
+          <title>Edit&#x2F;Fix-up Old Commits in Git</title>
+          <pubDate>Fri, 03 May 2024 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://abzrg.github.io/blog/git-fixup-old-commits/</link>
+          <guid>https://abzrg.github.io/blog/git-fixup-old-commits/</guid>
+          <description>&lt;p&gt;In this blog post, we&#x27;ll walk through the process of creating a &amp;quot;fix-up&amp;quot; commit to amend an old commit identified by a specific hash, &lt;code&gt;&amp;lt;OLD_HASH&amp;gt;&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;First, we create the fix-up commit by adding our changes and committing with the &lt;code&gt;--fixup=&amp;lt;OLD_HASH&amp;gt;&lt;&#x2F;code&gt; flag:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span&gt;git add &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span&gt;changes&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;git commit --fixup&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;=&amp;lt;&lt;&#x2F;span&gt;&lt;span&gt;OLD_HASH&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Next, we perform an interactive rebase starting from one commit before &lt;code&gt;&amp;lt;OLD_HASH&amp;gt;&lt;&#x2F;code&gt;:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span&gt;git rebase --interactive --autosquash &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span&gt;COMMIT_BEFORE_OLD_HASH&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;&amp;gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;If &lt;code&gt;&amp;lt;COMMIT_BEFORE_OLD_HASH&amp;gt;&lt;&#x2F;code&gt; is the first or root commit, pass &lt;code&gt;--root&lt;&#x2F;code&gt;&lt;sup class=&quot;footnote-reference&quot;&gt;&lt;a href=&quot;#1&quot;&gt;1&lt;&#x2F;a&gt;&lt;&#x2F;sup&gt; instead.&lt;&#x2F;p&gt;
+&lt;p&gt;Upon executing this command, your default editor opens up (with a text similar to below), allowing you to save and exit. Done.&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#ffffff;color:#323232;&quot;&gt;&lt;code&gt;&lt;span&gt;pick a43f263 Add initial interfaces
+&lt;&#x2F;span&gt;&lt;span&gt;pick a643ac3 Add base types
+&lt;&#x2F;span&gt;&lt;span&gt;fixup a08d5fa Add implementation
+&lt;&#x2F;span&gt;&lt;span&gt;pick 01e156a fix typo in base types
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;# Rebase fba8887..a08d5fa onto fba8887 (3 commands)
+&lt;&#x2F;span&gt;&lt;span&gt;#
+&lt;&#x2F;span&gt;&lt;span&gt;# Commands:
+&lt;&#x2F;span&gt;&lt;span&gt;# p, pick &amp;lt;commit&amp;gt; = use commit
+&lt;&#x2F;span&gt;&lt;span&gt;# r, reword &amp;lt;commit&amp;gt; = use commit, but edit the commit message
+&lt;&#x2F;span&gt;&lt;span&gt;# e, edit &amp;lt;commit&amp;gt; = use commit, but stop for amending
+&lt;&#x2F;span&gt;&lt;span&gt;# s, squash &amp;lt;commit&amp;gt; = use commit, but meld into previous commit
+&lt;&#x2F;span&gt;&lt;span&gt;# f, fixup [-C | -c] &amp;lt;commit&amp;gt; = like &amp;quot;squash&amp;quot; but keep only the previous
+&lt;&#x2F;span&gt;&lt;span&gt;#                    commit&amp;#39;s log message, unless -C is used, in which case
+&lt;&#x2F;span&gt;&lt;span&gt;#                    keep only this commit&amp;#39;s message; -c is same as -C but
+&lt;&#x2F;span&gt;&lt;span&gt;#                    opens the editor
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;# [1]
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The &lt;code&gt;--autosquash&lt;&#x2F;code&gt; option is crucial here as it automatically arranges fix-up commits immediately after the commit they are intended to fix, streamlining the rebase process.&lt;sup class=&quot;footnote-reference&quot;&gt;&lt;a href=&quot;#2&quot;&gt;2&lt;&#x2F;a&gt;&lt;&#x2F;sup&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;However, it&#x27;s important to note that these operations &lt;strong&gt;rewrite your repository&#x27;s history&lt;&#x2F;strong&gt;, which can pose challenges in collaborative environments. Therefore, exercise caution when force-pushing your new commits to the remote repository, using &lt;code&gt;--force-with-lease&lt;&#x2F;code&gt;:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span&gt;git push --force-with-lease
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;If the Git at &lt;code&gt;origin&lt;&#x2F;code&gt; successfully completes the exchange, you&#x27;re all set. Otherwise, you can run &lt;code&gt;git fetch origin&lt;&#x2F;code&gt; to update your local repository, make any necessary adjustments, and attempt the force-push again.&lt;&#x2F;p&gt;
+&lt;hr &#x2F;&gt;
+&lt;div class=&quot;footnote-definition&quot; id=&quot;1&quot;&gt;&lt;sup class=&quot;footnote-definition-label&quot;&gt;1&lt;&#x2F;sup&gt;
+&lt;p&gt;Only commits between the root and the tip of your current branch are included in the rebase. You can use &lt;code&gt;--root&lt;&#x2F;code&gt; to rebase your entire git tree. (&lt;a href=&quot;https:&#x2F;&#x2F;andrewlock.net&#x2F;smoother-rebases-with-auto-squashing-git-commits&#x2F;&quot;&gt;src&lt;&#x2F;a&gt;)&lt;&#x2F;p&gt;
+&lt;&#x2F;div&gt;
+&lt;div class=&quot;footnote-definition&quot; id=&quot;2&quot;&gt;&lt;sup class=&quot;footnote-definition-label&quot;&gt;2&lt;&#x2F;sup&gt;
+&lt;p&gt;For a more detailed explanation of &lt;code&gt;--autosquash&lt;&#x2F;code&gt;, you can read &lt;a href=&quot;https:&#x2F;&#x2F;andrewlock.net&#x2F;smoother-rebases-with-auto-squashing-git-commits&#x2F;&quot;&gt;this insightful article&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;&#x2F;div&gt;
+</description>
+      </item>
+      <item>
+          <title>x86 NASM on M1 Mac</title>
+          <pubDate>Thu, 02 May 2024 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://abzrg.github.io/blog/x86-nasm-on-m1-mac/</link>
+          <guid>https://abzrg.github.io/blog/x86-nasm-on-m1-mac/</guid>
+          <description>&lt;p&gt;We need an x86 Linux Docker image, and I prefer using the &lt;a href=&quot;https:&#x2F;&#x2F;releases.ubuntu.com&#x2F;jammy&#x2F;&quot;&gt;Ubuntu 22.04 Jammy&lt;&#x2F;a&gt; release for this purpose.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span&gt;docker pull --platform linux&#x2F;amd64 ubuntu:jammy
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Now, we can run it,&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# We didn&amp;#39;t pass &amp;#39;--rm&amp;#39; to retain it after exiting the Docker terminal&#x2F;shell. Instead, we assigned it a name (&amp;#39;--name x86asm&amp;#39;) for easy attachment later.
+&lt;&#x2F;span&gt;&lt;span&gt;docker run -it --name x86asm --platform linux&#x2F;amd64 ubuntu:jammy
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# To attach
+&lt;&#x2F;span&gt;&lt;span&gt;docker start --interactive --attach x86asm
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# To delete this container
+&lt;&#x2F;span&gt;&lt;span&gt;docker container rm x86asm
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Next, we need to install some packages,&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span&gt;apt-get update
+&lt;&#x2F;span&gt;&lt;span&gt;apt install -y binutils vim-tiny nasm
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Next, we are ready to write assembly code and build it. Let&#x27;s write it to a file using &lt;code&gt;vim-tiny&lt;&#x2F;code&gt;: &lt;code&gt;vi hello.asm&lt;&#x2F;code&gt;,&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;asm&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-asm &quot;&gt;&lt;code class=&quot;language-asm&quot; data-lang=&quot;asm&quot;&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;; hello.asm
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;section &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;.data
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;    hello_msg &lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;db &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;Hello, World!&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#0086b3;&quot;&gt;10
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;section &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;.text
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#62a35c;&quot;&gt;global &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;_start
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;_start:
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;mov &lt;&#x2F;span&gt;&lt;span&gt;rax, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#0086b3;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;mov &lt;&#x2F;span&gt;&lt;span&gt;rdi, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#0086b3;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;mov &lt;&#x2F;span&gt;&lt;span&gt;rsi, &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;hello_msg
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;mov &lt;&#x2F;span&gt;&lt;span&gt;rdx, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#0086b3;&quot;&gt;14
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;syscall
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;mov &lt;&#x2F;span&gt;&lt;span&gt;rax, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#0086b3;&quot;&gt;60
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;xor &lt;&#x2F;span&gt;&lt;span&gt;rdi, rdi
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;syscall
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Finally, compile, link and run,&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# Compile
+&lt;&#x2F;span&gt;&lt;span&gt;$ nasm -f elf64 hello.asm -o hello.o
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# Link
+&lt;&#x2F;span&gt;&lt;span&gt;$ ld hello.o -o hello
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;# Run
+&lt;&#x2F;span&gt;&lt;span&gt;$ .&#x2F;hello
+&lt;&#x2F;span&gt;&lt;span&gt;Hello, World!
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+</description>
+      </item>
+      <item>
+          <title>My second post</title>
+          <pubDate>Sun, 28 Apr 2024 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://abzrg.github.io/blog/second/</link>
+          <guid>https://abzrg.github.io/blog/second/</guid>
+          <description>&lt;p class=&quot;date&quot;&gt;updated date: Thu May 2 2024&lt;p&gt;
+&lt;p&gt;The equation \(E=mc^2\) represents mass-energy equivalence.&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+e^{i\theta} + 1 = 0
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\nabla \cdot \mathbf{U} = 0
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{equation}
+\frac{\partial (\rho u_{i})}{\partial t} + \frac{\partial[\rho u_{i}u_{j}]}{\partial x_{j}} = -\frac{\partial p}{\partial x_{i}} + \frac{\partial \tau_{ij}}{\partial x_{j}} + \rho f_{i} \end{equation}
+\begin{equation}
+\frac{\partial (\rho e)}{\partial t} + (\rho e+p)\frac{\partial u_{i}}{\partial x_{i}} = \frac{\partial(\tau_{ij}u_{j})}{\partial x_{i}} + \rho f_{i}u_{i} + \frac{\partial(\dot{ q_{i}})}{\partial x_{i}} + r \end{equation}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;Here&#x27;s some inline code: &lt;code&gt;PATH=$PATH:$HOME&#x2F;bin&lt;&#x2F;code&gt;&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;cpp&quot; style=&quot;background-color:#ffffff;color:#323232;&quot; class=&quot;language-cpp &quot;&gt;&lt;code class=&quot;language-cpp&quot; data-lang=&quot;cpp&quot;&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;#include &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;lt;iostream&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;using&lt;&#x2F;span&gt;&lt;span&gt; std::cout;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#795da3;&quot;&gt;main&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;void&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#969896;&quot;&gt;&#x2F;&#x2F; Comment
+&lt;&#x2F;span&gt;&lt;span&gt;    cout &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;&amp;lt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;Hello, World!&lt;&#x2F;span&gt;&lt;span style=&quot;color:#0086b3;&quot;&gt;\n&lt;&#x2F;span&gt;&lt;span style=&quot;color:#183691;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-weight:bold;color:#a71d5d;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#0086b3;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The only reason for time is so that everything doesn&#x27;t happen at once.
+&lt;span style=&quot;color:gray;font-size:0.9em&quot;&gt;–Albert Einstein&lt;&#x2F;span&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;!-- From Wolfgang&#x27;s Blog --&gt;
+&lt;div class=&quot;post__image&quot;&gt;
+    &lt;figure&gt;
+    &lt;a href=&quot;https:&#x2F;&#x2F;abzrg.github.io&#x2F;blog&#x2F;second&#x2F;CarletonEWatkins-CapeHornNearCelilo.jpeg&quot; class=&quot;image-link&quot; target=&quot;_blank&quot;&gt;
+        &lt;img src=&quot;https:&#x2F;&#x2F;abzrg.github.io&#x2F;blog&#x2F;second&#x2F;CarletonEWatkins-CapeHornNearCelilo.jpeg&quot; alt=&quot;Mountain&quot;&gt;
+    &lt;&#x2F;a&gt;
+    &lt;!-- &lt;figcaption&gt;&quot;Hello Hello Caption&quot;&lt;&#x2F;figcaption&gt; --&gt;
+    &lt;&#x2F;figure&gt;
+&lt;&#x2F;div&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Name&lt;&#x2F;th&gt;&lt;th&gt;Job&lt;&#x2F;th&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;thead&gt;&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;Jon Doe&lt;&#x2F;td&gt;&lt;td&gt;actor&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;Jane Doe&lt;&#x2F;td&gt;&lt;td&gt;actress&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;&#x2F;tbody&gt;&lt;&#x2F;table&gt;
+</description>
+      </item>
+      <item>
+          <title>My first post</title>
+          <pubDate>Sat, 27 Apr 2024 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://abzrg.github.io/blog/first/</link>
+          <guid>https://abzrg.github.io/blog/first/</guid>
+          <description>&lt;p&gt;This is my first blog post.&lt;&#x2F;p&gt;
+</description>
+      </item>
+    </channel>
+</rss>
