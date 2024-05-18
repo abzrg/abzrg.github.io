@@ -35,10 +35,16 @@
   <h2 class="articles">Articles</h2>
   <ul class="articles">
   {% set section = get_section(path="blog/_index.md") %}
-  {% for page in section.pages %}
+  {% set num_recent_posts = 5 %}
+  {% for page in section.pages | slice(end=num_recent_posts) %}
+  {% if loop.index <= num_recent_posts %}
   <li>
     <p class="date">{{ page.date | date(format="%B %e, %Y") }}</p><a href="{{ page.permalink | safe }}">{{ page.title }}</a>
   </li>
+  {% endif %}
+  {% if loop.index >= num_recent_posts and loop.last %}
+  <p><a href="/blog" id="olderposts">&#8594; Older Posts ({{ section.pages | length - num_recent_posts }} more)</a></p>
+  {% endif %}
   {% endfor %}
   </ul>
 
