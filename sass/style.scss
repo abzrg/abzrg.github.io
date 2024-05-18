@@ -76,6 +76,12 @@ p code {
 }
 
 li > code {
+  background-color: #f4f4f4;
+  border-radius: 3px;
+}
+
+li > strong > code {
+  background-color: #f4f4f4;
   border-radius: 3px;
 }
 
