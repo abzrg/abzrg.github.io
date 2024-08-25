@@ -3,8 +3,8 @@ base_url = "https://abzrg.github.io"
 compile_sass = true
 build_search_index = false
 minify_html = false
-generate_feed = true
-feed_filename = "rss.xml"
+generate_feeds = true
+feed_filenames = ["rss.xml"]
 default_language = "en"
 
 [markdown]
