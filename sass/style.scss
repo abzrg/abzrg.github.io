@@ -27,18 +27,16 @@ html {
   word-wrap: break-word;
   margin: 0 auto;
   padding: 1.5em;
+
+  @media (min-width: 700px) {
+    font-size: 100%;
+    max-width: 50em;
+  }
 }
 
 body {
   height: 100%;
   min-height: 100%;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 110%;
-    max-width: 62em;
-  }
 }
 
 a {
