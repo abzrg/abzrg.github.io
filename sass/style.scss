@@ -1,11 +1,8 @@
 :root {
-  font-family: Inter, "Helvetica", "Helvetica Neue", "Arial", "Verdana", sans-serif;
-  font-feature-settings: 'liga' 1, 'calt' 1, 'ss07' 1; /* fix for Chrome */
+  font-family: "Helvetica", "Helvetica Neue", "Arial", "Verdana", sans-serif;
   background-color: #f2f3e8;
   color: #555;
 }
-@supports (font-variation-settings: normal) {
-  :root { font-family: InterVariable, sans-serif; }
 
 ::selection {
   background-color: #0a101a;
@@ -52,7 +49,6 @@ p {
 }
 
 code {
-  font-family: "Jetbrains Mono", "Menlo", "Consolas", monospace;
   font-family: "Menlo", "Consolas", monospace;
   font-size: 90%;
 }
