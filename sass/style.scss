@@ -1,12 +1,15 @@
-$primary-color: #333;
-$background-color: #f4f4f4;
-
 :root {
   font-family: Inter, "Helvetica", "Helvetica Neue", "Arial", "Verdana", sans-serif;
   font-feature-settings: 'liga' 1, 'calt' 1, 'ss07' 1; /* fix for Chrome */
+  background-color: #f2f3e8;
+  color: #555;
 }
 @supports (font-variation-settings: normal) {
   :root { font-family: InterVariable, sans-serif; }
+
+::selection {
+  background-color: #0a101a;
+  color: white;
 }
 
 *,
@@ -15,15 +18,10 @@ $background-color: #f4f4f4;
   box-sizing: border-box;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 html {
   overflow-y: scroll;
   height: 100%;
+  font-size: 100%;
   font-weight: normal;
   font-style: normal;
   word-wrap: break-word;
@@ -44,18 +42,10 @@ body {
 }
 
 a {
-  color: #000066;
-  text-decoration: none;
-}
-
-a:link {
-  text-decoration: none;
-}
-
-a:hover, a:focus, a:active {
-  text-underline-offset: 5px;
-  text-decoration-style: solid;
-  text-decoration: underline;
+  color: #000000;
+  text-decoration: underline solid;
+  font-style: bold;
+  text-underline-offset: 3px;
 }
 
 p {
@@ -63,116 +53,100 @@ p {
   line-height: 1.5;
 }
 
-// Inline codes
 code {
   font-family: "Jetbrains Mono", "Menlo", "Consolas", monospace;
-  font-size: 97%;
+  font-family: "Menlo", "Consolas", monospace;
+  font-size: 90%;
 }
 
-p code {
-  background-color: #f4f4f4;
-  padding: 0.05em 0.2em;
-  border-radius: 3px;
-}
-
-li > code {
-  background-color: #f4f4f4;
-  border-radius: 3px;
-}
-
+p code,
+li > code,
 li > strong > code {
-  background-color: #f4f4f4;
-  border-radius: 3px;
-}
-
-pre[class|='language'] {
-  margin-bottom: 5px;
+  color: #c82829;
+  background-color: #ecede2;
+  padding: 0.05em 0.2em;
 }
 
 pre {
-  border: 1px solid #222;
-  border-radius: 3px;
-  white-space: pre;
-  white-space: pre-wrap;
-  word-wrap: break-word;
+  background-color: #ecede2 !important;
+  border-radius: 2px;
   padding: 1rem;
   overflow: auto;
-}
+  margin-bottom: 5px;
 
-// The line numbers already provide some kind of left/right padding
-pre[data-linenos] {
-  padding: 1rem 0;
-}
+  &[data-linenos] {
+    padding: 1rem 0;
+  }
 
-pre table td {
-  padding: 0;
-}
+  table {
+    width: 100%;
+    border-collapse: collapse;
 
-// The line number cells
-pre table td:nth-of-type(1) {
-  text-align: center;
-  user-select: none;
-}
+    td {
+      padding: 0;
+      &:nth-of-type(1) {
+        text-align: center;
+        user-select: none;
+      }
+    }
+  }
 
-pre mark {
-  display: block;
-  background-color: rgba(254, 252, 232, 0.9);
-}
-
-pre table {
-  width: 100%;
-  border-collapse: collapse;
+  mark {
+    display: block;
+    background-color: rgba(254, 252, 232, 0.9);
+  }
 }
 
 table {
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
   width: 90%;
   border-spacing: 0;
   border: 1px solid #ccc;
+
+  thead {
+    background-color: #f4f4f4;
+  }
+
+  th,
+  td {
+    line-height: 2;
+    text-align: center;
+    border: 1px solid #ccc;
+    padding: 1px 10px;
+  }
 }
 
-thead {
-  background-color: #f4f4f4;
-}
-
-th,
-td {
-  line-height: 2;
-  text-align: center;
-  border: 1px solid #ccc;
-  padding: 1px 10px;;
-}
-
-ol, ul {
+ol,
+ul {
   margin: 1em;
 }
 
-ol li ol, ol li ul, ul li ol, ul li ul {
+ol li ol,
+ol li ul,
+ul li ol,
+ul li ul {
   margin: 0 2em;
-}
-
-ol li p, ul li p {
-  margin: 0;
 }
 
 dl {
   font-family: "Jetbrains Mono", monospace;
-}
 
-dl dt {
-  font-weight: bold;
-}
+  dt {
+    font-weight: bold;
+  }
 
-dl dd {
-  margin: -1em 0 1em 1em;
+  dd {
+    margin: -1em 0 1em 1em;
+  }
 }
 
 img {
   max-width: 100%;
   display: block;
-  margin: 0 auto;
+  margin: 0;
   padding: 0.5em;
+  position: relative;
+  left: -10px;
 }
 
 blockquote {
@@ -180,14 +154,14 @@ blockquote {
   padding-left: 1em;
   font-style: italic;
   color: #555;
-  margin: 1.5em 0 1.5em;
-  border-left: solid 2px gray;
+  margin: 1.5em 0;
+  border-left: 5px solid #718c00;
   font-feature-settings: 'zero' 1;
-}
 
-// Don't draw border for code blocks inside block quote
-blockquote > pre {
-  border: none;
+  > pre {
+    border: none;
+    background-color: #f2f3e8 !important;
+  }
 }
 
 .title {
@@ -204,21 +178,21 @@ blockquote > pre {
 .tags {
   margin-top: -1.5rem;
   padding-bottom: 1.5em;
-}
 
-.tags li {
-  display: inline;
-  margin-right: 0.5em;
+  li {
+    display: inline;
+    margin-right: 0.5em;
+  }
 }
 
 figure {
   margin: 1em 0;
-}
 
-figure figcaption {
-  font-size: 0.75em;
-  text-align: center;
-  color: grey;
+  figcaption {
+    font-size: 0.75em;
+    text-align: center;
+    color: grey;
+  }
 }
 
 .footnote-definition sup {
@@ -241,10 +215,10 @@ ul.articles {
   list-style: none;
   padding: 0;
   margin: 0;
-}
 
-ul.articles li {
-  padding-bottom: 10px;
+  li {
+    padding-bottom: 10px;
+  }
 }
 
 footer {
@@ -253,7 +227,6 @@ footer {
   font-size: 13px;
 }
 
-// Sticky header
 .wrapper {
   box-sizing: border-box;
   min-height: 100%;
@@ -265,21 +238,10 @@ footer {
   flex-grow: 1;
 }
 
-table {
-  border-collapse: collapse;
-  border-spacing: 0;
-}
-
-td {
-  vertical-align: top;
-}
-
 .date {
-  font-size: 13px;
-  color: black;
+  font-size: 80%;
   margin-top: 2px;
   margin-bottom: 2px;
-  font-style: italic;
 }
 
 h1,
@@ -291,14 +253,7 @@ h6 {
   font-weight: 800;
   color: black;
   line-height: 1em;
-  font-optical-sizing: auto;
   font-style: normal;
-}
-
-h4,
-h5,
-h6 {
-  font-weight: bold;
 }
 
 h1 {
@@ -312,24 +267,17 @@ h2 {
   font-size: 1.5em;
 }
 
-h2.articles {
-  margin-top: 1em;
-}
-
 h3 {
   font-size: 1.2em;
   font-weight: 600;
-  margin: 1em 0 1em;
+  margin: 1em 0;
 }
 
 h4 {
   font-size: 0.9em;
 }
 
-h5 {
-  font-size: 0.9em;
-}
-
+h5,
 h6 {
   font-size: 0.9em;
 }
@@ -339,7 +287,7 @@ h6 {
 }
 
 .about {
-  margin: 0px 0px 16px;
+  margin: 0 0 16px;
   font-weight: 600;
   font-size: 20px;
 }
@@ -372,19 +320,19 @@ h6 {
   display: flex;
   min-width: 40%;
   flex-wrap: wrap;
-}
 
-.socials-items-center {
-  align-items: center
-}
+  &-items-center {
+    align-items: center;
+  }
 
-.socials-justify-center {
-  justify-content: center;
-}
+  &-justify-center {
+    justify-content: center;
+  }
 
-.socials > a {
-  color: black;
-  padding: 20px;
+  > a {
+    color: black;
+    padding: 20px;
+  }
 }
 
 #olderposts {
