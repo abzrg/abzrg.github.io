@@ -4,10 +4,10 @@
   color: #000000;
 }
 
-::selection {
-  background-color: #0a101a;
-  color: white;
-}
+// ::selection {
+//   background-color: #0a101a;
+//   color: white;
+// }
 
 *,
 *::before,
@@ -37,10 +37,10 @@ body {
 }
 
 a {
-  color: #000000;
-  text-decoration: underline solid;
+  color: black;
+  text-decoration: underline solid black;
   font-style: bold;
-  text-underline-offset: 3px;
+  text-underline-offset: 2px;
 }
 
 p {
