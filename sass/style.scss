@@ -49,21 +49,22 @@ p {
 }
 
 code {
-  font-family: "Menlo", "Consolas", monospace;
-  font-size: 90%;
+  font-family: 'Courier', "Menlo", "Consolas", monospace;
+  // font-size: 90%;
 }
 
 p code,
 li > code,
 li > strong > code {
-  color: #c82829;
-  background-color: #ecede2;
+  color: black;
+  background-color: #f5f5ef;
   padding: 0.05em 0.2em;
+  border-radius: 3px;
 }
 
 pre {
-  background-color: #ecede2 !important;
-  border-radius: 2px;
+  background-color: #f5f5ef;
+  border-left: solid 5px black;
   padding: 1rem;
   overflow: auto;
   margin-bottom: 5px;
@@ -147,9 +148,9 @@ blockquote {
   margin-left: 1px;
   padding-left: 1em;
   font-style: italic;
-  color: #555;
+  color: black;
   margin: 1.5em 0;
-  border-left: 5px solid #718c00;
+  border-left: 5px solid #fb651e;
   font-feature-settings: 'zero' 1;
 
   > pre {
