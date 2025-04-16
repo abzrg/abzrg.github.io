@@ -48,7 +48,7 @@
   {% for page in section.pages | slice(end=num_recent_posts) %}
   {% if loop.index <= num_recent_posts %}
   <li>
-    <a href="{{ page.permalink | safe }}">{{ page.title }}</a> &mdash; <span class="date">{{ page.date | date(format="%B %m, %Y") }}</span>
+    <a href="{{ page.permalink | safe }}">{{ page.title }}</a> &mdash; <span class="date">{{ page.date | date(format="%B %e, %Y") }}</span>
   </li>
   {% endif %}
   {% if loop.index >= num_recent_posts and loop.last %}
