@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="https://abzrg.github.io/rss.xml">
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://rsms.me/">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="https://abzrg.github.io/style.css">
+  <link rel="shortcut icon" type="image/png" href="https://abzrg.github.io/favicon.png"/>
+  
+    <title>CSS Attribute Selectors: ~= vs. *= | Ali&#x27;s Blog</title>
+  
+  
+
+</head>
+<body>
+  <div class="wrapper">
+  <section class="section">
+    <div class="container">
+      
+<div class="about">
+  <a id="about_back" href="/">ABOUT</a>
+</div>
+<h1 class="title">
+  CSS Attribute Selectors: ~= vs. *=
+</h1>
+
+<p class="date">Apr 18, 2025</p>
+
+<p>Within CSS attribute selectors, the operators <code>~=</code> (the word finder) and <code>*=</code> (the substring spotter) offer distinct matching criteria:</p>
+<ul>
+<li>
+<p><code>~=</code> operator selects elements whose attribute value contains a specified <strong>whole word</strong> from a space-separated list.</p>
+<pre data-lang="css" class="language-css "><code class="language-css" data-lang="css">[class~=&quot;button&quot;] {...}
+</code></pre>
+<p>You're telling the browser to select any element whose <code>class</code> attribute contains the <em>whole</em> word &quot;button&quot;.
+It has to be a standalone word, usually separated by spaces.</p>
+<ul>
+<li>✅ <code>&lt;div class=&quot;button primary&quot;&gt;Click Me&lt;/div&gt;</code></li>
+<li>✅ <code>&lt;a class=&quot;call-to-action button&quot;&gt;Go!&lt;/a&gt;</code></li>
+<li>✅ <code>&lt;span class=&quot;icon button&quot;&gt;&lt;/span&gt;</code></li>
+<li>❌ <code>&lt;div class=&quot;button-primary&quot;&gt;Nope, not a whole word.&lt;/div&gt;</code></li>
+<li>❌ <code>&lt;a class=&quot;submitbutton&quot;&gt;Still not a whole word.&lt;/a&gt;</code></li>
+</ul>
+</li>
+<li>
+<p><code>*=</code> operator selects elements whose attribute value contains a specified <strong>substring</strong> at any position.</p>
+<pre data-lang="css" class="language-css "><code class="language-css" data-lang="css">[href*=&quot;example&quot;] {...}
+</code></pre>
+<p>You're telling the browser to select any element whose <code>href</code> attribute contains the <em>substring</em> &quot;example&quot; anywhere within its value.</p>
+<ul>
+<li>✅ <code>&lt;a href=&quot;https://www.example.com&quot;&gt;Our Example Site&lt;/a&gt;</code></li>
+<li>✅ <code>&lt;a href=&quot;mailto:test@example.org&quot;&gt;Email Us&lt;/a&gt;</code></li>
+<li>✅ <code>&lt;a href=&quot;/products/example-widget.html&quot;&gt;Check this out!&lt;/a&gt;</code></li>
+<li>✅ <code>&lt;a href=&quot;another-site?ref=example123&quot;&gt;Another Link&lt;/a&gt;</code></li>
+<li>❌ <code>&lt;a href=&quot;https://www.different.com&quot;&gt;Nope, no &quot;example&quot; here.&lt;/a&gt;</code></li>
+</ul>
+</li>
+</ul>
+<p>See the difference? <code>*=</code> doesn't care if &quot;example&quot; is a whole word or part of a larger string. It just needs to be present somewhere in the attribute's value.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors">CSS Attribute Selectors</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/Attribute_selectors">CSS Selectors - Learn web development</a></li>
+</ul>
+
+
+    </div>
+  </section>
+  <footer>
+    <p id="copyright">Copyright &copy; 2025<a href="/" id="home">Ali Bozorgzadeh</a></p>
+  </footer>
+  </div>
+</body>
+</html>

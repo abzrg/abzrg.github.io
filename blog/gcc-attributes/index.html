@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="https://abzrg.github.io/rss.xml">
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://rsms.me/">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="https://abzrg.github.io/style.css">
+  <link rel="shortcut icon" type="image/png" href="https://abzrg.github.io/favicon.png"/>
+  
+    <title>Compiler Attributes: nonnull | Ali&#x27;s Blog</title>
+  
+  
+
+</head>
+<body>
+  <div class="wrapper">
+  <section class="section">
+    <div class="container">
+      
+<div class="about">
+  <a id="about_back" href="/">ABOUT</a>
+</div>
+<h1 class="title">
+  Compiler Attributes: nonnull
+</h1>
+
+<p class="date">Apr 16, 2025</p>
+
+<p>GCC and Clang provide the <code>__attribute__((nonnull))</code> or <code>gnu::nonnull</code> attribute, a compile-time mechanism to enhance code safety by allowing you to declare that specific function pointer arguments must never be <code>NULL</code>.
+This has the following benefits:</p>
+<ol>
+<li>Catch potential <code>NULL</code> pointer errors during compilation, preventing runtime crashes.</li>
+<li>By knowing certain pointers are never <code>NULL</code>, the compiler can perform more aggressive optimizations, potentially leading to faster code.</li>
+<li>The <code>nonnull</code> attribute acts as a clear contract, communicating to developers which arguments are expected to be valid pointers.</li>
+</ol>
+<p>You can apply the <code>nonnull</code> attribute in two ways:</p>
+<ul>
+<li><code>__attribute__((nonnull))</code>: This form indicates that <em>all</em> pointer arguments of the function must be non-<code>NULL</code>.</li>
+<li><code>__attribute__((nonnull(arg_index_1, arg_index_2, ...)))</code>: This allows you to specify which specific pointer arguments (using 1-based indexing) are expected to be non-<code>NULL</code>.</li>
+</ul>
+<p>C++ users might encounter the <code>[[gnu::nonnull(index)]]</code> syntax, which is a GNU extension even within C++11 attribute brackets.
+Be aware that some compilers might warn or ignore this form.</p>
+<pre data-lang="c" class="language-c "><code class="language-c" data-lang="c">void process_data(int *data, size_t size) __attribute__((nonnull(1)));
+
+void test_process() {
+    process_data(NULL, 10); &#x2F;&#x2F; Compiler may warn: argument 1 is NULL
+    int values[] = {1, 2, 3};
+    process_data(values, sizeof(values) &#x2F; sizeof(int)); &#x2F;&#x2F; OK
+}
+
+[[gnu::nonnull(2, 4)]]
+int calculate_result(const char *operation, const int *values,
+                     size_t count, int (*process)(int));
+
+void test_calculation() {
+    int numbers[] = {5, 10};
+    calculate_result(&quot;+&quot;, numbers, 2, NULL);
+    &#x2F;&#x2F; Compiler may warn: argument 4 is NULL
+}
+</code></pre>
+<h2 id="important-notes">Important Notes</h2>
+<p>First, for this warnings to be emitted, <code>-Wall</code> must be passed to the compiler.</p>
+<pre data-lang="console" class="language-console "><code class="language-console" data-lang="console">test.c: In function &#x27;test_process&#x27;:
+test.c:4:5: warning: argument 1 null where non-null expected [-Wnonnull]
+    4 |     process_data(NULL, 10); &#x2F;&#x2F; Compiler may warn: argument 1 is NULL
+      |     ^~~~~~~~~~~~
+test.c:1:6: note: in a call to function &#x27;process_data&#x27; declared &#x27;nonnull&#x27;
+    1 | void process_data(int *data, size_t size) __attribute__((nonnull(1)));
+      |      ^~~~~~~~~~~~
+test.c: In function &#x27;test_calculation&#x27;:
+test.c:15:5: warning: argument 4 null where non-null expected [-Wnonnull]
+   15 |     calculate_result(&quot;+&quot;, numbers, 2, NULL);
+      |     ^~~~~~~~~~~~~~~~
+test.c:10:5: note: in a call to function &#x27;calculate_result&#x27; declared &#x27;nonnull&#x27;
+   10 | int calculate_result(const char *operation, const int *values,
+      |     ^~~~~~~~~~~~~~~~
+</code></pre>
+<p>Second, remember to apply the <code>nonnull</code> attribute during the function <em>declaration</em>, not within the function definition itself.</p>
+<pre data-lang="c" class="language-c "><code class="language-c" data-lang="c">&#x2F;&#x2F; Correct
+void analyze_string(const char *str) __attribute__((nonnull(1)));
+
+void analyze_string(const char *str) {
+    &#x2F;&#x2F; ... implementation ...
+}
+
+&#x2F;&#x2F; ~~~
+
+&#x2F;&#x2F; Incorrect:
+void analyze_string(const char *str) __attribute__((nonnull(1))) {
+    &#x2F;&#x2F; ... implementation ...
+}
+</code></pre>
+<h2 id="runtime-checks-still-matter">Runtime Checks Still Matter</h2>
+<p>While <code>nonnull</code> is a fantastic tool for compile-time safety, it's crucial to understand its limitations.
+The compiler can only warn about <code>NULL</code> values that it can determine <em>statically</em> (e.g., literal <code>NULL</code>).
+In dynamic scenarios where a pointer might become <code>NULL</code> during runtime, the <code>nonnull</code> attribute won't provide protection.</p>
+<p>Therefore, especially for public APIs or library functions, it's still best practice to include runtime checks (like <code>assert(ptr != NULL)</code> for debugging or explicit <code>if (!ptr) return;</code> for production) to handle potential <code>NULL</code> values gracefully.</p>
+<h2 id="in-conclusion">In Conclusion</h2>
+<p>The <code>__attribute__((nonnull))</code> attribute in GCC and Clang is a valuable asset in writing safer and more efficient C and C++ code.
+By clearly specifying which pointer arguments should never be <code>NULL</code>, you empower the compiler to help you catch potential errors early, leading to more robust and maintainable software.</p>
+
+
+    </div>
+  </section>
+  <footer>
+    <p id="copyright">Copyright &copy; 2025<a href="/" id="home">Ali Bozorgzadeh</a></p>
+  </footer>
+  </div>
+</body>
+</html>
