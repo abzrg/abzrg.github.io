@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://abzrg.github.io/</loc>
+    </url>
+    <url>
+        <loc>https://abzrg.github.io/blog/</loc>
+    </url>
+    <url>
+        <loc>https://abzrg.github.io/blog/find-cfd-job-cli/</loc>
+        <lastmod>2024-05-18</lastmod>
+    </url>
+    <url>
+        <loc>https://abzrg.github.io/blog/first/</loc>
+        <lastmod>2024-04-27</lastmod>
+    </url>
+    <url>
+        <loc>https://abzrg.github.io/blog/fix-wget-download-freeze/</loc>
+        <lastmod>2024-05-04</lastmod>
+    </url>
+    <url>
+        <loc>https://abzrg.github.io/blog/gcc-attributes/</loc>
+        <lastmod>2025-04-16</lastmod>
+    </url>
+    <url>
+        <loc>https://abzrg.github.io/blog/git-fixup-old-commits/</loc>
+        <lastmod>2024-05-03</lastmod>
+    </url>
+    <url>
+        <loc>https://abzrg.github.io/blog/second/</loc>
+        <lastmod>2024-04-28</lastmod>
+    </url>
+    <url>
+        <loc>https://abzrg.github.io/blog/x86-nasm-on-m1-mac/</loc>
+        <lastmod>2024-05-02</lastmod>
+    </url>
+</urlset>
