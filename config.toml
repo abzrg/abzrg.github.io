@@ -9,7 +9,7 @@ default_language = "en"
 
 [markdown]
 highlight_code = false
-highlight_theme = "nord"
+smart_punctuation = true
 
 [extra]
 author = "Ali"
