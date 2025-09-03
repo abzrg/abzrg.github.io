@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- fira sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  <!-- fira code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap" rel="stylesheet">
+
+  
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="https://abzrg.github.io/rss.xml">
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://rsms.me/">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="https://abzrg.github.io/style.css">
+  <link rel="shortcut icon" type="image/png" href="https://abzrg.github.io/favicon.png"/>
+  
+    <title>Fix wget Download Freezing | Ali&#x27;s Blog</title>
+  
+  
+
+</head>
+<body>
+  <div class="wrapper">
+  <section class="section">
+    <div class="container">
+      
+<div class="about">
+  <a id="about_back" href="/">ABOUT</a>
+</div>
+<h1 class="title">
+  Fix wget Download Freezing
+</h1>
+
+<p class="date">May  4, 2024</p>
+
+<p>One annoying problem of downloading files using <code>wget</code> is that when some network
+problem happens, it does not (by default) retry, and the download gets stuck,</p>
+<pre><code>60%[========================&gt;                ]  71.62M --.-KB&#x2F;s  eta 7m 43s
+</code></pre>
+<p>and I have to <code>^C</code> and retry myself manually.</p>
+<p>To fix this, <code>--read-timeout=seconds</code> comes to the rescue. According to the <code>wget</code>’s man page:</p>
+<blockquote>
+<pre><code>--read-timeout=seconds
+    Set the read (and write) timeout to seconds seconds.  The
+    &quot;time&quot; of this timeout refers to idle time: if, at any
+    point in the download, no data is received for more than the
+    specified number of seconds, reading fails and the
+    download is restarted.  This option does not directly affect
+    the duration of the entire download.
+</code></pre>
+</blockquote>
+<p>We can adjust the timeout to a shorter interval, like every <code>20</code> seconds. So after 20 seconds of not receiving data, download is failed, and <code>wget</code> will automatically restart the download.</p>
+<pre><code>wget --read-timeout=20 &lt;url&gt;
+</code></pre>
+<p>However, we want <code>wget</code> to not ignore the previous download progress and start from where it left off. For that, we use the <code>-c/--continue</code> option.</p>
+<pre><code>wget --read-timeout=20 --continue &lt;url&gt;
+</code></pre>
+<p>And finally, we want <code>wget</code> to try infinitely after each download failure. For this, we specify the <code>--tries=number</code> option, whose default <code>number</code> is set to <code>20</code> tries. We specify <code>0</code> (or <code>inf</code>) for infinite trying.<sup class="footnote-reference"><a href="#1">1</a></sup> So our final command is the following:</p>
+<pre><code>wget --read-timeout=20 --continue --tries=0 &lt;url&gt;
+</code></pre>
+<br>
+<hr />
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p>Note that it does not retry for fatal errors like “connection refused” or “not found,” which is nice.</p>
+</div>
+
+
+    </div>
+  </section>
+  <footer>
+    <p id="copyright">Copyright &copy; 2025<a href="/" id="home">Ali Bozorgzadeh</a></p>
+  </footer>
+  </div>
+</body>
+</html>

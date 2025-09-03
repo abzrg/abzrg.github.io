@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- fira sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  <!-- fira code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap" rel="stylesheet">
+
+  
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="https://abzrg.github.io/rss.xml">
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://rsms.me/">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="https://abzrg.github.io/style.css">
+  <link rel="shortcut icon" type="image/png" href="https://abzrg.github.io/favicon.png"/>
+  
+    <title>Edit&#x2F;Fix-up Old Commits in Git | Ali&#x27;s Blog</title>
+  
+  
+
+</head>
+<body>
+  <div class="wrapper">
+  <section class="section">
+    <div class="container">
+      
+<div class="about">
+  <a id="about_back" href="/">ABOUT</a>
+</div>
+<h1 class="title">
+  Edit&#x2F;Fix-up Old Commits in Git
+</h1>
+
+<p class="date">May  3, 2024</p>
+
+<p>In this blog post, we’ll walk through the process of creating a “fix-up” commit to amend an old commit identified by a specific hash, <code>&lt;OLD_HASH&gt;</code>.</p>
+<p>First, we create the fix-up commit by adding our changes and committing with the <code>--fixup=&lt;OLD_HASH&gt;</code> flag:</p>
+<pre data-lang="sh" class="language-sh "><code class="language-sh" data-lang="sh">git add &lt;changes&gt;
+git commit --fixup=&lt;OLD_HASH&gt;
+</code></pre>
+<p>Next, we perform an interactive rebase starting from one commit before <code>&lt;OLD_HASH&gt;</code>:</p>
+<pre data-lang="sh" class="language-sh "><code class="language-sh" data-lang="sh">git rebase --interactive --autosquash &lt;COMMIT_BEFORE_OLD_HASH&gt;
+</code></pre>
+<p>If <code>&lt;COMMIT_BEFORE_OLD_HASH&gt;</code> is the first or root commit, pass <code>--root</code><sup class="footnote-reference"><a href="#1">1</a></sup> instead.</p>
+<p>Upon executing this command, your default editor opens up (with a text similar to below), allowing you to save and exit. Done.</p>
+<pre><code>pick a43f263 Add initial interfaces
+pick a643ac3 Add base types
+fixup a08d5fa Add implementation
+pick 01e156a fix typo in base types
+
+# Rebase fba8887..a08d5fa onto fba8887 (3 commands)
+#
+# Commands:
+# p, pick &lt;commit&gt; = use commit
+# r, reword &lt;commit&gt; = use commit, but edit the commit message
+# e, edit &lt;commit&gt; = use commit, but stop for amending
+# s, squash &lt;commit&gt; = use commit, but meld into previous commit
+# f, fixup [-C | -c] &lt;commit&gt; = like &quot;squash&quot; but keep only the previous
+#                    commit&#x27;s log message, unless -C is used, in which case
+#                    keep only this commit&#x27;s message; -c is same as -C but
+#                    opens the editor
+
+# [1]
+</code></pre>
+<p>The <code>--autosquash</code> option is crucial here as it automatically arranges fix-up commits immediately after the commit they are intended to fix, streamlining the rebase process.<sup class="footnote-reference"><a href="#2">2</a></sup></p>
+<p>However, it’s important to note that these operations <strong>rewrite your repository’s history</strong>, which can pose challenges in collaborative environments. Therefore, exercise caution when force-pushing your new commits to the remote repository, using <code>--force-with-lease</code>:</p>
+<pre data-lang="sh" class="language-sh "><code class="language-sh" data-lang="sh">git push --force-with-lease
+</code></pre>
+<p>If the Git at <code>origin</code> successfully completes the exchange, you’re all set. Otherwise, you can run <code>git fetch origin</code> to update your local repository, make any necessary adjustments, and attempt the force-push again.</p>
+<hr />
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p>Only commits between the root and the tip of your current branch are included in the rebase. You can use <code>--root</code> to rebase your entire git tree. (<a href="https://andrewlock.net/smoother-rebases-with-auto-squashing-git-commits/">src</a>)</p>
+</div>
+<div class="footnote-definition" id="2"><sup class="footnote-definition-label">2</sup>
+<p>For a more detailed explanation of <code>--autosquash</code>, you can read <a href="https://andrewlock.net/smoother-rebases-with-auto-squashing-git-commits/">this insightful article</a>.</p>
+</div>
+
+
+    </div>
+  </section>
+  <footer>
+    <p id="copyright">Copyright &copy; 2025<a href="/" id="home">Ali Bozorgzadeh</a></p>
+  </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- fira sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  <!-- fira code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap" rel="stylesheet">
+
+  
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="https://abzrg.github.io/rss.xml">
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://rsms.me/">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="https://abzrg.github.io/style.css">
+  <link rel="shortcut icon" type="image/png" href="https://abzrg.github.io/favicon.png"/>
+  
+    <title>How I Look for CFD Jobs from the Command Line | Ali&#x27;s Blog</title>
+  
+  
+
+</head>
+<body>
+  <div class="wrapper">
+  <section class="section">
+    <div class="container">
+      
+<div class="about">
+  <a id="about_back" href="/">ABOUT</a>
+</div>
+<h1 class="title">
+  How I Look for CFD Jobs from the Command Line
+</h1>
+
+<p class="date">May 18, 2024</p>
+
+<p>I regularly check <a href="https://www.cfd-online.com/Jobs/listjobs.php?category=PhD%20Studentship">CFD-Online PhD Jobs</a>, but the site lacks RSS or email alerts. To automate job checking, I use a shell script that fetches and parses the latest listings.</p>
+<pre data-lang="sh" class="language-sh "><code class="language-sh" data-lang="sh">curl -sL &#x27;https:&#x2F;&#x2F;www.cfd-online.com&#x2F;Jobs&#x2F;listjobs.php?category=PhD%20Studentship&#x27; \
+| perl -0777 -nle &#x27;
+    my $i = 1;
+    print &quot;$i. $1 ($2; $3)\n&quot; and $i++
+    while &#x2F;&lt;a href=&quot;showjob\.php\?record_id=\d+&quot;&gt;(.*?)&lt;\&#x2F;a&gt;.*?&lt;I&gt;(.*?)&lt;\&#x2F;I&gt;&lt;br&gt;\s*(.*?)&lt;br&gt;&#x2F;gs
+&#x27; \
+| head -10
+</code></pre>
+<p>Shell Function:</p>
+<pre data-lang="sh" class="language-sh "><code class="language-sh" data-lang="sh">getcfdjobs() {
+  cnt=${1:-10}
+  curl -sL &#x27;https:&#x2F;&#x2F;www.cfd-online.com&#x2F;Jobs&#x2F;listjobs.php?category=PhD%20Studentship&#x27; \
+  | perl -0777 -nle &#x27;
+      my $i = 1;
+      print &quot;$i. $1 ($2; $3)\n&quot; and $i++
+      while &#x2F;&lt;a href=&quot;showjob\.php\?record_id=\d+&quot;&gt;(.*?)&lt;\&#x2F;a&gt;.*?&lt;I&gt;(.*?)&lt;\&#x2F;I&gt;&lt;br&gt;\s*(.*?)&lt;br&gt;&#x2F;gs
+  &#x27; \
+  | head -$cnt
+}
+</code></pre>
+<p>Job Change Checker:</p>
+<pre data-lang="sh" class="language-sh "><code class="language-sh" data-lang="sh">getcfdjobs 100 &gt; $HOME&#x2F;.cfdjobs
+diff &lt;(getcfdjobs 1) &lt;(head -1 $HOME&#x2F;.cfdjobs) \
+&amp;&amp; echo &quot;No new job&quot; || echo &quot;New job detected&quot;
+</code></pre>
+<p>For POSIX shells without <code>&lt;()</code>, use <code>mktemp</code>.</p>
+<p>Notifier Script (<code>checkcfdjobs</code>):</p>
+<pre data-lang="sh" class="language-sh "><code class="language-sh" data-lang="sh">#!&#x2F;bin&#x2F;sh -e
+
+notify() {
+  case $(uname) in
+    Linux)
+        notify-send &quot;[CFD-Online] New job!&quot;
+        ;;
+    Darwin)
+        osascript -e &#x27;display notification &quot;New job!&quot; with title &quot;CFD-Online&quot;&#x27;
+        ;;
+    *) echo &quot;Unsupported OS&quot; &amp;&amp; exit 1 ;;
+  esac
+}
+
+getcfdjobs() {
+  cnt=${1:-10}
+  | perl -0777 -nle &#x27;
+      my $i = 1;
+      print &quot;$i. $1 ($2; $3)\n&quot; and $i++
+      while &#x2F;&lt;a href=&quot;showjob\.php\?record_id=\d+&quot;&gt;(.*?)&lt;\&#x2F;a&gt;.*?&lt;I&gt;(.*?)&lt;\&#x2F;I&gt;&lt;br&gt;\s*(.*?)&lt;br&gt;&#x2F;gs
+  &#x27; \
+  | head -$cnt
+}
+
+tmp_old=$(mktemp)
+tmp_new=$(mktemp)
+trap &#x27;rm -f $tmp_old $tmp_new&#x27; EXIT
+
+head -1 &quot;$HOME&#x2F;.cfdjobs&quot; &gt; $tmp_old
+getcfdjobs 100 | tee &quot;$HOME&#x2F;.cfdjobs&quot; | head -1 &gt; $tmp_new
+
+diff $tmp_old $tmp_new || notify
+</code></pre>
+<p>Schedule with <code>cron</code>:</p>
+<pre data-lang="cron" class="language-cron "><code class="language-cron" data-lang="cron">0 *&#x2F;3 * * * &#x2F;absolute&#x2F;path&#x2F;to&#x2F;checkcfdjobs
+</code></pre>
+
+
+    </div>
+  </section>
+  <footer>
+    <p id="copyright">Copyright &copy; 2025<a href="/" id="home">Ali Bozorgzadeh</a></p>
+  </footer>
+  </div>
+</body>
+</html>

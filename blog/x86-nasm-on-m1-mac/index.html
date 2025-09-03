@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- fira sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  <!-- fira code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap" rel="stylesheet">
+
+  
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="https://abzrg.github.io/rss.xml">
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://rsms.me/">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="https://abzrg.github.io/style.css">
+  <link rel="shortcut icon" type="image/png" href="https://abzrg.github.io/favicon.png"/>
+  
+    <title>x86 NASM on M1 Mac | Ali&#x27;s Blog</title>
+  
+  
+
+</head>
+<body>
+  <div class="wrapper">
+  <section class="section">
+    <div class="container">
+      
+<div class="about">
+  <a id="about_back" href="/">ABOUT</a>
+</div>
+<h1 class="title">
+  x86 NASM on M1 Mac
+</h1>
+
+<p class="date">May  2, 2024</p>
+
+<p>We need an x86 Linux Docker image, and I prefer using the <a href="https://releases.ubuntu.com/jammy/">Ubuntu 22.04 Jammy</a> release for this purpose.</p>
+<pre data-lang="sh" class="language-sh "><code class="language-sh" data-lang="sh">docker pull --platform linux&#x2F;amd64 ubuntu:jammy
+</code></pre>
+<p>Now, we can run it,</p>
+<pre data-lang="sh" class="language-sh "><code class="language-sh" data-lang="sh"># We didn&#x27;t pass &#x27;--rm&#x27; to retain it after exiting the Docker terminal&#x2F;shell. Instead, we assigned it a name (&#x27;--name x86asm&#x27;) for easy attachment later.
+docker run -it --name x86asm --platform linux&#x2F;amd64 ubuntu:jammy
+
+# To attach
+docker start --interactive --attach x86asm
+
+# To delete this container
+docker container rm x86asm
+</code></pre>
+<p>Next, we need to install some packages,</p>
+<pre data-lang="sh" class="language-sh "><code class="language-sh" data-lang="sh">apt-get update
+apt install -y binutils vim-tiny nasm
+</code></pre>
+<p>Next, we are ready to write assembly code and build it. Let’s write it to a file using <code>vim-tiny</code>: <code>vi hello.asm</code>,</p>
+<pre data-lang="asm" class="language-asm "><code class="language-asm" data-lang="asm">; hello.asm
+
+section .data
+    hello_msg db &quot;Hello, World!&quot;, 10
+
+section .text
+    global _start
+
+_start:
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, hello_msg
+    mov rdx, 14
+    syscall
+
+    mov rax, 60
+    xor rdi, rdi
+    syscall
+</code></pre>
+<p>Finally, compile, link and run,</p>
+<pre data-lang="sh" class="language-sh "><code class="language-sh" data-lang="sh"># Compile
+$ nasm -f elf64 hello.asm -o hello.o
+
+# Link
+$ ld hello.o -o hello
+
+# Run
+$ .&#x2F;hello
+Hello, World!
+</code></pre>
+
+
+    </div>
+  </section>
+  <footer>
+    <p id="copyright">Copyright &copy; 2025<a href="/" id="home">Ali Bozorgzadeh</a></p>
+  </footer>
+  </div>
+</body>
+</html>
